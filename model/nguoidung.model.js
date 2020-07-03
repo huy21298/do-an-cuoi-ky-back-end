@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const nguoiDungSchema = new Schema({
+const nguoiDungSchema = new Schema(
+  {
     id: Number,
     ho: String,
     ten: String,
@@ -11,18 +12,21 @@ const nguoiDungSchema = new Schema({
     ngay_sinh: Date,
     mat_khau: String,
     loai: Boolean,
-},
-    {
-        toObject: {
-            virtuals: true
-        },
-        toJson: {
-            virtuals: true
-        },
-        timestamps: true,
-    });
+  },
+  {
+    toObject: {
+      virtual: true,
+      getters: true,
+    },
+    toJSON: {
+      virtual: true,
+      getters: true,
+    },
+    timestamps: true,
+  }
+);
 
 nguoiDungSchema.virtual("hoten").get(function () {
-    return this.ho + " " + this.ten;
+  return this.ho + " " + this.ten;
 });
 module.exports = mongoose.model("NguoiDung", nguoiDungSchema, "nguoi_dung");

@@ -1,21 +1,21 @@
-/** Chỗ này import những thư viện bên ngoài vào  */
+/** Import third library  */
 const express = require("express");
 const path = require("path");
 const logger = require("morgan");
 
 const app = express();
 
-/** Chỗ này import những thư viện do mình viết ra */
+/** Import custom module */
 require("./model/connectDB")();
-const layTieuDe = require("./routers/baithi.router");
+const baiThiRoute = require("./routers/api-v1/baithi.router");
 
-/** Chỗ này khai báo middleware */
+/** Define middleware */
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-/** Chỗ này khai báo router */
-app.use("/lambaithi",layTieuDe);
+/** Define route */
+app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 
 module.exports = app;
