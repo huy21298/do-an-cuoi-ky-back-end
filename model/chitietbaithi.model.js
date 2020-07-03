@@ -9,6 +9,8 @@ const chiTietBaiThiSchema = new Schema({
     diem : String,
     dap_an : String,
     version_cau_hoi : String
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("ChiTietBaiThi", chiTietBaiThiSchema, "ct_bai_thi");

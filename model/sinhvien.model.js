@@ -11,6 +11,8 @@ const sinhVienSchema = new Schema({
   ngay_sinh: Date,
   nguoi_tao: Number,
 
+},{
+  timestamps: true,
 });
 
 module.exports = mongoose.model("SinhVien", sinhVienSchema, "sinh_vien");

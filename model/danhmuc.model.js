@@ -9,6 +9,8 @@ const danhMucTapSchema = new Schema({
     mo_ta : String,
     nguoi_tao : Number
 
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("DanhMuc", nopBaiTapSchema, "danh_muc");

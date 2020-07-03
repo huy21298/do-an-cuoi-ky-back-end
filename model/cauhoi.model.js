@@ -19,6 +19,8 @@ const CauHoichema = new Schema({
     danh_muc_id : Number,
     la_version_moi_nhat : Boolean
 
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("CauHoi", CauHoichema, "cau_hoi");

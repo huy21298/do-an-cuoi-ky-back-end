@@ -12,6 +12,8 @@ const ketQuaThiDuocCongBoSchema = new Schema({
     diem : Number,
     ngay_cong_bo : Date
 
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("KetQuaThiDuocCongBo", ketQuaThiDuocCongBoSchema, "ket_qua_thi_duoc_cong_bo");

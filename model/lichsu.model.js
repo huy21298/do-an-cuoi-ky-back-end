@@ -10,6 +10,8 @@ const lichSuSchema = new Schema({
     ngay_tao : Date,
     lop_hoc_id : Number
 
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("LichSu", lichSuSchema, "lich_su");

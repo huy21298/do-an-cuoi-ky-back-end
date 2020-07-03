@@ -9,6 +9,8 @@ const baiThiCuaSinhVienchema = new Schema({
     cau_hoi_id : Number,
     dap_an_da_chon : String
 
+},{
+    timestamps: true,
 });
 
 module.exports = mongoose.model("BaiThiCuaSinhVien", baiThiCuaSinhVienchema, "bai_thi_sinh_vien");

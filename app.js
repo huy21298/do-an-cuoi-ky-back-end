@@ -7,6 +7,7 @@ const app = express();
 
 /** Chỗ này import những thư viện do mình viết ra */
 require("./model/connectDB")();
+const layTieuDe = require("./routers/baithi.router");
 
 /** Chỗ này khai báo middleware */
 app.use(logger("dev"));
@@ -15,5 +16,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 /** Chỗ này khai báo router */
+app.use("/lambaithi",layTieuDe);
 
 module.exports = app;

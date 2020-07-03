@@ -9,6 +9,8 @@ const nopBaiTapSchema = new Schema({
   bai_nop : String,
   thoi_gian_nop : Date
 
+},{
+  timestamps: true,
 });
 
 module.exports = mongoose.model("NopBaiTap", nopBaiTapSchema, "nop_bai_tap");
