@@ -8,6 +8,7 @@ const app = express();
 /** Import custom module */
 require("./model/connectDB")();
 const baiThiRoute = require("./routers/api-v1/baithi.router");
+const lopHoc = require("./routers/api-v1/trangchu.router");
 
 /** Define middleware */
 app.use(logger("dev"));
@@ -17,5 +18,6 @@ app.use(express.static(path.join(__dirname, "public")));
 
 /** Define route */
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
+app.use("/api/v1/lop-hoc", lopHoc); // localhost/api/v1/lop-Hoc
 
 module.exports = app;

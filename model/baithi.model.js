@@ -17,6 +17,8 @@ const baiThiSchema = new Schema(
       },
     },
     nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
+    cau_hoi_id: [{ type: Schema.Types.ObjectId, ref: "CauHoi" }],
+
   },
   {
     timestamps: true,

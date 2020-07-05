@@ -2,13 +2,11 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const chiTietBaiThiSchema = new Schema({
+const chiTietBaiThiCuaSinhVienchema = new Schema({
 
+    sinh_vien_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
     bai_thi_id: { type: Schema.Types.ObjectId, ref: "BaiThi" },
-    cau_hoi_id: [{ type: Schema.Types.ObjectId, ref: "CauHoi" }],
-    diem: Number,
-    dap_an: String,
-    version_cau_hoi: String
+
 },
     {
         timestamps: true,
@@ -16,4 +14,4 @@ const chiTietBaiThiSchema = new Schema({
         toJSON: { virtuals: true, getters: true },
     });
 
-module.exports = mongoose.model("ChiTietBaiThi", chiTietBaiThiSchema, "ct_bai_thi");
+module.exports = mongoose.model("ChiTietBaiThiSinhVien", chiTietBaiThiCuaSinhVienchema, "ct_bai_thi_sinh_vien");

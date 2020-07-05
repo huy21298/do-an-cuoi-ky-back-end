@@ -11,8 +11,19 @@ const sinhVienSchema = new Schema({
   ngay_sinh: Date,
   nguoi_tao: Number,
 
-},{
+},
+{
+  toObject: {
+    virtual: true,
+    getters: true,
+  },
+  toJSON: {
+    virtual: true,
+    getters: true,
+  },
   timestamps: true,
 });
-
+sinhVienSchema.virtual("hoten").get(function () {
+  return this.ho + " " + this.ten;
+});
 module.exports = mongoose.model("SinhVien", sinhVienSchema, "sinh_vien");

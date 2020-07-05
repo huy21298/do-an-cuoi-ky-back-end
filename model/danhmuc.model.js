@@ -12,5 +12,4 @@ const danhMucTapSchema = new Schema({
 },{
     timestamps: true,
 });
-
 module.exports = mongoose.model("DanhMuc", nopBaiTapSchema, "danh_muc");

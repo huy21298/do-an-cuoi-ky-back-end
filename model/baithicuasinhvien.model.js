@@ -4,12 +4,12 @@ const Schema = mongoose.Schema;
 
 const baiThiCuaSinhVienchema = new Schema({
 
-    sinh_vien_id : Number,
-    bai_thi_id : Number,
-    cau_hoi_id : Number,
-    dap_an_da_chon : String
+    sinh_vien_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
+    bai_thi_id: { type: Schema.Types.ObjectId, ref: "BaiThi" },
+    cau_hoi_id: { type: Schema.Types.ObjectId, ref: "CauHoi" },
+    dap_an_da_chon: String
 
-},{
+}, {
     timestamps: true,
 });
 
