@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const lopHocSchema = new Schema({
     id: Number,
     tieu_de: String,
-    nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiTao" },
+    nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
 },
     {
         toObject: {

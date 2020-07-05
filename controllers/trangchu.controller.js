@@ -10,9 +10,9 @@ const { noticeCrash } = require("./notice-messages");
 
 const loadLopHocThamGia = (req, res) => {
     const sinh_vien_id = mongoose.Types.ObjectId(req.params.id);
-    ChiTietSinhVienLopHoc.find({sinh_vien_id})
-        .populate({ path:"lop_hoc_id" , select: "tieu_de"})
-        .populate({path:"sinh_vien_id", select: "ho ten hoten"})
+    ChiTietSinhVienLopHoc.find({ sinh_vien_id })
+        .select({sinh_vien_id})
+        .populate({ path: "lop_hoc_id", model: LopHoc, populate: { path: "nguoi_tao_id", select: "ho ten hoten", model: NguoiDung } })
         .then((lopHoc) => {
             const data = {
                 lopHoc
