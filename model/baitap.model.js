@@ -3,15 +3,25 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const baiTapSchema = new Schema({
-  id: Number,
   tieu_de: String,
-  ngay_tao: Date,
-  ngay_het_han: Date,
-  nguoi_tao: Number,
-  lop_hoc: Number
-
-}, {
-  timestamps: true,
+  noi_dung: String,
+  nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
+  lop_hoc_id : { type: Schema.Types.ObjectId, ref: "LopHoc" },
+  han_nop_bai: Date,
+  tep_tin : String,
+  trang_thai: {
+    type: Boolean,
+    default: true,
+    get: (v) => {
+      return v === true ? "Phát hành" : "Bản nháp";
+    },
+  },
+  ds_sinh_vien_tham_gia : Array
+},
+{
+    timestamps: true,
+    toObject: { virtuals: true, getters: true },
+    toJSON: { virtuals: true, getters: true },
 });
 
 module.exports = mongoose.model("BaiTap", baiTapSchema, "bai_tap");
