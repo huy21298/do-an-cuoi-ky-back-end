@@ -6,20 +6,20 @@ const SinhVien = require("../model/sinhvien.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
 
-const loadDsSinhVienTrongLop = (req, res) => {
+const LoadThongTinSinhVien = (req, res) => {
 
     const _id = mongoose.Types.ObjectId(req.params.id);
-    LopHoc.findOne({ _id }).select("ds_sinh_vien nguoi_tao_id")
-        .populate({ path: "nguoi_tao_id", select: "ho ten hoten" })
-        .populate({ path: "ds_sinh_vien", select: "ho ten hoten" })
-        .then(danhSach => {
+    SinhVien.findOne({_id})
+    .populate({path: "ds_lop_hoc", select: "tieu_de"})
+    .populate({path: "nguoi_tao_id" ,select: "ho ten"})
+        .then(thongTinSinhVien => {
             const data = {
-                danhSach
+                thongTinSinhVien
             }
             res.json(data).status(200);
+
         })
         .catch(e => noticeCrash(res));
 
-
 }
-module.exports = { loadDsSinhVienTrongLop }
+module.exports = { LoadThongTinSinhVien }
