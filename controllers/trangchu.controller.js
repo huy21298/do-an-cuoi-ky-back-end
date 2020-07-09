@@ -1,8 +1,6 @@
 /** Import third library */
 const mongoose = require("mongoose");
 /** Import model */
-const NguoiDung = require("../model/nguoidung.model");
-const LopHoc = require("../model/lophoc.model");
 const SinhVien = require("../model/sinhvien.model");
 const BaiThi = require("../model/baithi-new.model");
 /** Import message notice function*/
@@ -14,17 +12,21 @@ const loadLopHocThamGia = (req, res) => {
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
     .then(lopHoc => {
 
-      //var kq = new Map( LopHoc.ds_lop_hoc.map(i => i._id) )
-    
-      // for( let i=0; i< lopHoc.ds_lop_hoc.length; i++)
-      // {
-      //   // id = lopHoc.ds_lop_hoc[i]._id;
-      //   const A =[].push(lopHoc.ds_lop_hoc[i]._id);
-        const data = {
-          lopHoc
-        }
-        res.json(data).status(200);
-      //  }
+      var id = lopHoc.ds_lop_hoc.map(i => i._id)
+      //id này là id = ['idso1','idso2','idso3']
+      const coPy = [];
+      id.forEach(i => {
+        const lop_hoc_id = mongoose.Types.ObjectId(i);
+        BaiThi.find({ lop_hoc_id })
+          .then(baiThiCuaLop => {
+            coPy.push(baiThiCuaLop)
+          })
+          .catch(e => noticeCrash(res));
+      });
+      const data = {
+        lopHoc,coPy
+      }
+      res.json(data).status(200);
     })
     .catch(e => console.log(e));
 }
