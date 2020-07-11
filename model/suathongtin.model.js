@@ -3,9 +3,8 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const suaThongTinSchema = new Schema({
-    nguoi_dung_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
+    nguoi_dung_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
     ly_do: String,
-    lop_hoc: Number,
     trang_thai: {
         type: Boolean,
         default: true,
