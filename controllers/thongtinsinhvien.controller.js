@@ -9,7 +9,7 @@ const { noticeCrash } = require("./notice-messages");
 const LoadThongTinSinhVien = (req, res) => {
 
     const _id = req.params.id;
-    SinhVien.findById({_id}).select("ma_sv ho ten email ngay_sinh anh_dai_dien ")
+    SinhVien.findById({_id}).select("ma_sv ho ten email ngay_sinh")
         .then(thongTinSinhVien => {
             const data = {
                 thongTinSinhVien

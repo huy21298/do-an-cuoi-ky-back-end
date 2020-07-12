@@ -1,12 +1,11 @@
 /** Import third library */
 const mongoose = require("mongoose");
 /** Import model */
-const BaiThi = require("../model/baithi.model");
 const NguoiDung = require("../model/nguoidung.model");
 const LopHoc = require("../model/lophoc.model");
 const ChiTietBaiThi = require("../model/chitietbaithi.model");
 const CauHoi = require("../model/cauhoi.model");
-const BaiThi1 = require("../model/baithi-new.model");
+const BaiThi = require("../model/baithi-new.model");
 const BaiThiGoc = require("../model/baithigoc.model");
 
 /** Import message notice function*/
@@ -30,7 +29,7 @@ const { noticeCrash } = require("./notice-messages");
 
 const loadBaiThi = (req, res) => {
   const _id = mongoose.Types.ObjectId(req.params.id);
-  BaiThi1.findOne({ _id }).select("thoi_gian_thi tieu_de") /// này là bài thi lấy ra người tạo bài thi đó
+  BaiThi.findOne({ _id }).select("thoi_gian_thi tieu_de") /// này là bài thi lấy ra người tạo bài thi đó
     .populate({ path: "nguoi_tao_id", select: " ho ten hoten" })
     .then(baiThi => {
       console.log(baiThi)

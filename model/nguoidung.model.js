@@ -4,7 +4,6 @@ const Schema = mongoose.Schema;
 
 const nguoiDungSchema = new Schema(
   {
-    id: Number,
     ho: String,
     ten: String,
     anh_dai_dien: String,
