@@ -9,6 +9,7 @@ const sinhVienSchema = new Schema({
   anh_dai_dien : String,
   email: String,
   ngay_sinh: Date,
+  mat_khau : String,
   nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
   ds_lop_hoc : [{ type: Schema.Types.ObjectId, ref: "LopHoc" }],
 },

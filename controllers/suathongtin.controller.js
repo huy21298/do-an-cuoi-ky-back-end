@@ -9,7 +9,7 @@ const suaThongTin = (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(200).json({ errors: errors.array() });
+        res.status(200).json({'success': false, errors: errors.array() });
         return;
       }
     const nguoi_dung_id = mongoose.Types.ObjectId(req.params.id);    

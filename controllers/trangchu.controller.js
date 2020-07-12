@@ -9,8 +9,8 @@ const BaiThi = require("../model/baithi-new.model");
 const { noticeCrash } = require("./notice-messages");
 
 const loadLopHocThamGia = (req, res) => {
-  const _id = mongoose.Types.ObjectId(req.params.id);
-  SinhVien.findOne({ _id }).select("ds_lop_hoc ho ten")
+  const _id = req.params.id;
+  SinhVien.findById({ _id }).select("ds_lop_hoc ho ten")
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
     .then(lopHoc => {
 
