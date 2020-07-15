@@ -7,6 +7,7 @@ const app = express();
 const passport = require("passport");
 const session = require('express-session');
 const LocalStrategy = require('passport-local').Strategy;
+const {check} = require('express-validator');
 /** Import custom module */
 require("./model/connectDB")();
 const baiThiRoute = require("./routers/api-v1/baithi.router");
@@ -28,9 +29,6 @@ app.use(express.static(path.join(__dirname, "public")));
 require("./model/passport")(passport);
 app.use(session({
   secret : "secret",
-  cookie: {
-    maxage: 1000 * 60 * 60 * 24 * 3
-},
   saveUninitialized: true,
   resave: true
 }))
@@ -44,5 +42,5 @@ app.use("/api/v1/danh-sach-sinh-vien", dSSinhVienLopHoc); //localhost/api/v1/dan
 app.use("/api/v1/thong-tin-sinh-vien", thongTinSv); //localhost/api/v1/thong-tin-sinh-vien
 app.use("/api/v1/bai-thi-trong-lop", dSBaiThiTrongLop); //localhost/api/v1/bai-thi-trong-lop
 app.use("/api/v1/sua-thong-tin",validate.validateSuaThongTin(), suaThongTin); //localhost/api/v1/sua-thong-tin
-app.use("/api/v1/login",loGin);
+app.use("/api/v1/login",validate.validateLogin(),loGin);
 module.exports = app;
