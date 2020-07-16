@@ -24,6 +24,6 @@ const loadBaiThiTrongMotLop = (req, res) => {
                 })
                 .catch(e => noticeCrash(res));
         })
-        .catch(e => console.log(e));
+        .catch(e => noticeCrash(res));
 }
 module.exports = { loadBaiThiTrongMotLop }

@@ -9,7 +9,7 @@ const { noticeCrash } = require("./notice-messages");
 const LoadThongTinSinhVien = (req, res) => {
 
     const _id = req.params.id;
-    SinhVien.findById({_id}).select("ma_sv ho ten email ngay_sinh")
+    SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien")
         .then(thongTinSinhVien => {
             const data = {
                 thongTinSinhVien
@@ -17,7 +17,9 @@ const LoadThongTinSinhVien = (req, res) => {
             res.json(data).status(200);
 
         })
-        .catch(e => console.log(e));
+        .catch(e => noticeCrash(res));
 
 }
+
+
 module.exports = { LoadThongTinSinhVien }

@@ -15,16 +15,19 @@ const lopHoc = require("./routers/api-v1/trangchu.router");
 const dSSinhVienLopHoc = require("./routers/api-v1/dssinhvienlophoc.router")
 const thongTinSv = require("./routers/api-v1/thongtinsinhvien.model");
 const dSBaiThiTrongLop = require("./routers/api-v1/baithitrongmoitlop.router")
-const suaThongTin = require("./routers/api-v1/suathongtin.router");
+const suaThongTin  = require("./routers/api-v1/suathongtin.router");
+const aVatar =require ("./routers/api-v1/avatar.router");
 const validate = require("./validator/sinhvien.validator");
 const loGin =require("./routers/api-v1/login.router");
 /** Define middleware */
 app.use(bodyParser.urlencoded({ extended: true })); // => khai báo để sử dụng req.body (lấy ra những biến POST)
 app.use(bodyParser.json());
+app.use(express.static("public"))
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+
 /** Define middleware cho passport */ 
 require("./model/passport")(passport);
 app.use(session({
@@ -32,7 +35,7 @@ app.use(session({
   saveUninitialized: true,
   resave: true
 }))
-app.use(passport.initialize());
+app.use(passport.initialize()); 
 app.use(passport.session());
 
 /** Define route */
@@ -42,5 +45,6 @@ app.use("/api/v1/danh-sach-sinh-vien", dSSinhVienLopHoc); //localhost/api/v1/dan
 app.use("/api/v1/thong-tin-sinh-vien", thongTinSv); //localhost/api/v1/thong-tin-sinh-vien
 app.use("/api/v1/bai-thi-trong-lop", dSBaiThiTrongLop); //localhost/api/v1/bai-thi-trong-lop
 app.use("/api/v1/sua-thong-tin",validate.validateSuaThongTin(), suaThongTin); //localhost/api/v1/sua-thong-tin
+app.use("/api/v1/cap-nhat-anh-dai-dien",aVatar); //localhost/api/v1/sua-thong-tin
 app.use("/api/v1/login",validate.validateLogin(),loGin);
 module.exports = app;

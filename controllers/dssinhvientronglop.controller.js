@@ -19,7 +19,7 @@ const loadDsSinhVienTrongLop = (req, res) => {
             }
             res.json(data).status(200);
         })
-        .catch(e => console.log(e));
+        .catch(e => noticeCrash(res));
 
 
 }
