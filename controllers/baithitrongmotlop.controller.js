@@ -20,7 +20,7 @@ const loadBaiThiTrongMotLop = (req, res) => {
                     const data = {
                         dsBaiThi, baiTap
                     }
-                    res.json(data).status(200);
+                    res.json({ 'success': true,data}).status(200);
                 })
                 .catch(e => noticeCrash(res));
         })

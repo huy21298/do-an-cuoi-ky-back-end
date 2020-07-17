@@ -13,29 +13,12 @@ const loadLopHocThamGia = (req, res) => {
   SinhVien.findById({ _id }).select("ds_lop_hoc ho ten")
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
     .then(lopHoc => {
-
-      // var id = lopHoc.ds_lop_hoc.map(i => i._id)
-      // id.forEach(i => {
-      //   const lop_hoc_id = mongoose.Types.ObjectId(i);
-      //   BaiThi.find({ lop_hoc_id }).select("tieu_de thoi_gian_thi lop_hoc_id")
-      //     .then(baiThiCuaLop => {
-      //       const data = {
-      //         lopHoc, baiThiCuaLop
-      //       }
-      //       res.json(data).status(200);
-      //     })
-      //     .catch(e => noticeCrash(res));
-      //                 const data = {
-      //         lopHoc, baiThiCuaLop
-      //       }
-      //       res.json(data).status(200);
-      // });
       const data = {
         lopHoc
       }
-      res.json(data).status(200);
+      res.json({ 'success': true,data}).status(200);
     })
-    .catch(e => console.log(e));
+    .catch( e => noticeCrash(res));
 }
 
 

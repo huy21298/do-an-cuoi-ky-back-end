@@ -34,7 +34,7 @@ const CapNhatAvatar = (req, res) => {
             if (user) {
                 req.body.anh_dai_dien = req.file.filename;
                 const _id = req.params.id
-                SinhVien.updateOne( {_id}, {$set:{ anh_dai_dien :req.body.anh_dai_dien }})
+                SinhVien.updateOne({ _id }, { $set: { anh_dai_dien: req.body.anh_dai_dien } })
                     .then(aVaTar => {
                         if (aVaTar) {
                             res

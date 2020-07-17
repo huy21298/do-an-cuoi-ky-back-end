@@ -14,7 +14,7 @@ const LoadThongTinSinhVien = (req, res) => {
             const data = {
                 thongTinSinhVien
             }
-            res.json(data).status(200);
+            res.json({ 'success': true,data}).status(200);
 
         })
         .catch(e => noticeCrash(res));
