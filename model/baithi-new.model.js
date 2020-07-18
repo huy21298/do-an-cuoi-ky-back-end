@@ -8,7 +8,7 @@ const baiThi1Schema = new Schema(
     tieu_de :String, 
     loai_bai_thi : Number,
     lop_hoc_id: { type: Schema.Types.ObjectId, ref: "LopHoc" },
-    ngay_bat_dau_thi : Date,
+    ngay_thi : Date,
     thoi_gian_thi: Date,
     trang_thai: {
       type: Boolean,
@@ -18,7 +18,8 @@ const baiThi1Schema = new Schema(
       },
     },
     nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
-    ds_sinh_vien_tham_gia : [{ type: Schema.Types.ObjectId, ref: "SinhVien" }]
+    ds_sinh_vien : [{ type: Schema.Types.ObjectId, ref: "SinhVien" }],
+    ds_cau_hoi : [{type: Array, default: []}]
   },
   {
     timestamps: true,
