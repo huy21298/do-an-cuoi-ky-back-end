@@ -1,0 +1,11 @@
+var express = require("express");
+var router = express.Router();
+const multer = require("multer");
+const upload = multer({ dest: "./public/avatar" });
+const fs = require("fs");
+const validate = require("../../validator/sinhvien.validator");
+const { suaThongTin ,CapNhatAvatar, LoadThongTinSinhVien} = require("../../controllers/sinhvien.controller");
+router.get("/:id/thong-tin", LoadThongTinSinhVien);
+router.post("/sua-thong-tin/:id",validate.validateSuaThongTin(), suaThongTin);
+router.post("/:id/cap-nhat-avatar",upload.single("avatar"), CapNhatAvatar);
+module.exports = router;

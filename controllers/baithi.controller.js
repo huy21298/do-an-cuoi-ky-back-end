@@ -16,7 +16,7 @@ const loadBaiThi = (req, res) => {
     BaiThi.findById({ _id })
         .then(baiThi => {
             if (baiThi) {
-                var countDownDate = new Date(moment(baiThi.ngay_thi).format('lll')).getTime();
+                var countDownDate = new Date(moment(baiThi.ngay_thi).format('lll')).getTime(); //Jan 5, 2021 15:31:21
                 var now = new Date().getTime();
                 var distance = countDownDate - now;
                 // Time calculations for days, hours, minutes and seconds

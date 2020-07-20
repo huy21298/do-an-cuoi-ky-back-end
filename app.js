@@ -11,18 +11,14 @@ const {check} = require('express-validator');
 /** Import custom module */
 require("./model/connectDB")();
 const baiThiRoute = require("./routers/api-v1/baithi.router");
-const lopHoc = require("./routers/api-v1/trangchu.router");
-const dSSinhVienLopHoc = require("./routers/api-v1/dssinhvienlophoc.router")
-const thongTinSv = require("./routers/api-v1/thongtinsinhvien.model");
-const dSBaiThiTrongLop = require("./routers/api-v1/baithitrongmoitlop.router")
-const suaThongTin  = require("./routers/api-v1/suathongtin.router");
-const aVatar =require ("./routers/api-v1/avatar.router");
+const baiTapRoute = require("./routers/api-v1/baitap.router");
+const lopHocRoute = require("./routers/api-v1/lophoc.router");
+const sinhVienRoute = require("./routers/api-v1/sinhvien.router");
 const validate = require("./validator/sinhvien.validator");
-const loGin =require("./routers/api-v1/login.router");
+const loGinRoute =require("./routers/api-v1/login.router");
 /** Define middleware */
 app.use(bodyParser.urlencoded({ extended: true })); // => khai báo để sử dụng req.body (lấy ra những biến POST)
 app.use(bodyParser.json());
-app.use(express.static("public"))
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -40,11 +36,8 @@ app.use(passport.session());
 
 /** Define route */
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
-app.use("/api/v1/lop-hoc", lopHoc); // localhost/api/v1/lop-Hoc
-app.use("/api/v1/danh-sach-sinh-vien", dSSinhVienLopHoc); //localhost/api/v1/danh-sach-sinh-vien
-app.use("/api/v1/thong-tin-sinh-vien", thongTinSv); //localhost/api/v1/thong-tin-sinh-vien
-app.use("/api/v1/bai-thi-trong-lop", dSBaiThiTrongLop); //localhost/api/v1/bai-thi-trong-lop
-app.use("/api/v1/sua-thong-tin",validate.validateSuaThongTin(), suaThongTin); //localhost/api/v1/sua-thong-tin
-app.use("/api/v1/cap-nhat-anh-dai-dien",aVatar); //localhost/api/v1/sua-thong-tin
-app.use("/api/v1/login",validate.validateLogin(),loGin);
+app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
+app.use("/api/v1/lop-hoc", lopHocRoute); // localhost/api/v1/lop-Hoc
+app.use("/api/v1/sinh-vien", sinhVienRoute); //localhost/api/v1/thong-tin-sinh-vien
+app.use("/api/v1/login",validate.validateLogin(),loGinRoute);
 module.exports = app;
