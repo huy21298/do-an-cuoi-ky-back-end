@@ -1,5 +1,10 @@
 var express = require("express");
 var router = express.Router();
-const { loadbaiTap } = require("../../controllers/baitap.controller");
+const multer = require("multer");
+const upload = multer({ dest: "./public/upload" });
+const fs = require("fs");
+const { loadbaiTap,nopbaiTap, huyUpLoad} = require("../../controllers/baitap.controller");
 router.get("/:id", loadbaiTap);
+router.post("/sinh-vien/:idSinhVien/:idBaiTap",upload.single("upload"), nopbaiTap);
+router.post("/:id/huy-file", huyUpLoad);
 module.exports = router;
