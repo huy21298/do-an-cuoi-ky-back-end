@@ -10,7 +10,7 @@ const { validationResult } = require('express-validator');
 const LoadThongTinSinhVien = (req, res) => {
 
     const _id = req.params.id;
-    SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien")
+    SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien mat_khau sdt")
         .then(thongTinSinhVien => {
             const data = {
                 thongTinSinhVien
@@ -29,15 +29,26 @@ const suaThongTin = (req, res) => {
         return;
     }
     const nguoi_dung_id = mongoose.Types.ObjectId(req.params.id);
+    const ma_sv = req.body.thong_tin_sua.ma_sv;
+    const ho = req.body.thong_tin_sua.ho;
+    const ten = req.body.thong_tin_sua.ten;
+    const ngay_sinh = req.body.thong_tin_sua.ngay_sinh;
+    const gioi_tinh = req.body.thong_tin_sua.gioi_tinh;
+    const sdt = req.body.thong_tin_sua.sdt;
+    const email = req.body.thong_tin_sua.email;
+    //console.log(req.body);
+    //console.log(req.body.thong_tin_sua.email)
     SuaThongTin.create(
         {
             'nguoi_dung_id': nguoi_dung_id,
             'ly_do': req.body.ly_do,
-            'trang_thai': false
+            'thong_tin_sua': {ma_sv, ho , ten , ngay_sinh, gioi_tinh, sdt, email},//chổ này create ntn 
+            'trang_thai': Boolean(false)
         })
         .then(suaThongTin => {
             if (suaThongTin) {
-                res.json(suaThongTin).status(200);
+                res.json({ 'success': true, 'msg':"Thông tin đã được gửi , chờ phê duyệt"}).status(200);
+                //console.log(suaThongTin.thong_tin_sua)
             }
 
         }).catch(e => noticeCrash(res));

@@ -5,6 +5,6 @@ const upload = multer({ dest: "./public/upload" });
 const fs = require("fs");
 const { loadbaiTap,nopbaiTap, huyUpLoad} = require("../../controllers/baitap.controller");
 router.get("/:id", loadbaiTap);
-router.post("/sinh-vien/:idSinhVien/:idBaiTap",upload.single("upload"), nopbaiTap);
-router.post("/:id/huy-file", huyUpLoad);
+router.post("/:idBaiTap/sinh-vien/:idSinhVien",upload.single("upload"), nopbaiTap); // id sinh viên , id bài tập
+router.patch("/:id/huy-file", huyUpLoad); //id của nộp bài tập
 module.exports = router;

@@ -45,6 +45,7 @@ const nopbaiTap = (req, res) => {
                             const newFullPath = `${fullPathInServ}-${orgName}`;
                             fs.renameSync(fullPathInServ, newFullPath);
                             req.body.upload = orgName;
+                            //console.log(orgName);
                             NopBaiTap.create({
                                 'bai_tap_id': bai_tap_id,
                                 'lop_hoc_id': lop_hoc_id,
@@ -60,9 +61,9 @@ const nopbaiTap = (req, res) => {
                                 .catch(e => noticeCrash(res));
                         }
                     })
-                    .catch(e => console.log(e));
+                    .catch(e => noticeCrash(res));
         })
-        .catch(e => console.log(e));
+        .catch(e => noticeCrash(res));
 }
 const huyUpLoad = (req, res) => {
     const _id = req.params.id;

@@ -1,10 +1,19 @@
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
-
+const data = new Schema({
+    ma_sv: String,
+    ho: String,
+    ten: String,
+    ngay_sinh: Date,
+    gioi_tinh: String,
+    sdt :Number,
+    email: String,
+}, {_id: false});
 const suaThongTinSchema = new Schema({
     nguoi_dung_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
     ly_do: String,
+    thong_tin_sua : data,
     trang_thai: {
         type: Boolean,
         default: true,
