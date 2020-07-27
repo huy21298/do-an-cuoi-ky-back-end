@@ -22,26 +22,26 @@ const sinhVienSchema = new Schema({
       return value.toLowerCase();
     },
   },
-  anh_dai_dien : String,
+  anh_dai_dien: String,
   email: String,
   ngay_sinh: Date,
-  sdt :Number,
+  sdt: Number,
   gioi_tinh: String,
-  mat_khau : String,
+  mat_khau: String,
   nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
-  ds_lop_hoc : [{ type: Schema.Types.ObjectId, ref: "LopHoc" }],
+  ds_lop_hoc: [{ type: Schema.Types.ObjectId, ref: "LopHoc", default: [] }],
 },
-{
-  toObject: {
-    virtual: true,
-    getters: true,
-  },
-  toJSON: {
-    virtual: true,
-    getters: true,
-  },
-  timestamps: true,
-});
+  {
+    toObject: {
+      virtual: true,
+      getters: true,
+    },
+    toJSON: {
+      virtual: true,
+      getters: true,
+    },
+    timestamps: true,
+  });
 sinhVienSchema.virtual("hoten").get(function () {
   return this.ho + " " + this.ten;
 });
