@@ -21,4 +21,16 @@ let validateLogin = () => {
     ];
 }
 
-module.exports = {validateSuaThongTin , validateLogin}
+let validateLopHoc = () => {
+    return [
+        check('email', 'email không được bỏ trống')
+            .not()
+            .isEmpty(),
+        check('email', 'email không hợp lệ').isEmail(),
+        check('code', 'email không được bỏ trống')
+            .not()
+            .isEmpty(),
+    ];
+}
+
+module.exports = {validateSuaThongTin , validateLogin ,validateLopHoc}

@@ -14,6 +14,7 @@ const suaThongTinSchema = new Schema({
     nguoi_dung_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
     ly_do: String,
     thong_tin_sua : data,
+    la_sinhvien: Boolean,
     trang_thai: {
         type: Boolean,
         default: true,

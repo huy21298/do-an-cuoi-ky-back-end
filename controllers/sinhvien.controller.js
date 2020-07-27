@@ -43,7 +43,8 @@ const suaThongTin = (req, res) => {
             'nguoi_dung_id': nguoi_dung_id,
             'ly_do': req.body.ly_do,
             'thong_tin_sua': {ma_sv, ho , ten , ngay_sinh, gioi_tinh, sdt, email},//chổ này create ntn 
-            'trang_thai': Boolean(false)
+            'trang_thai': Boolean(false),
+            'la_sinhvien': Boolean(true)
         })
         .then(suaThongTin => {
             if (suaThongTin) {
