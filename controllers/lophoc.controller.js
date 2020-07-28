@@ -58,41 +58,47 @@ const loadBaiThiTrongMotLop = (req, res) => {
 }
 
 const thamGiaLopHoc = (req, res) => {
+
   const code = req.body.code;
   const email = req.body.email;
-  // const errors = validationResult(req);
-  // if (!errors.isEmpty()) {
-  //     res.status(200).json({ 'success': false, errors: errors.array() });
-  //     return;
-  // }
   Invite.findOne({ code }) // tìm mã code
     .then(coDe => {
       if (coDe) {
         if (coDe.email === email) { //  mail được mời === mail từ req.body
-          Invite.updateOne({ code }, { $set: { kich_hoat: Boolean(true) } }) // update lại trạng thái
-            .then(kichHoat => {
-              if (kichHoat) {
-                SinhVien.findOne({ email }) // tìm ra sinh viên được mời bằng mail
-                  .then(sinhVien => {
-                    if (sinhVien) {
-                      const _id = mongoose.Types.ObjectId(coDe.lop_hoc_id); // từ coDe ta có được id lớp học
-                      const svien = mongoose.Types.ObjectId(sinhVien._id); 
-                      LopHoc.findByIdAndUpdate({_id},{$push: {ds_sinh_vien: svien}})
-                      .then( lopHoc =>{
-                        res.json({ 'success': true,lopHoc }).status(200);
-                      })
-                      .catch(e => noticeCrash(res));
-                    }
-                  })
-                  .catch(e => noticeCrash(res));
-              }
-            })
-            .catch(e => noticeCrash(res));
+          if (coDe.kich_hoat === Boolean(false)) {
+            Invite.updateOne({ code }, { $set: { kich_hoat: Boolean(true) } }) // update lại trạng thái
+              .then(kichHoat => {
+                if (kichHoat) {
+                  SinhVien.findOne({ email }) // tìm ra sinh viên được mời bằng mail
+                    .then(sinhVien => {
+                      if (sinhVien) {
+                        console.log(sinhVien)
+                        const _id = mongoose.Types.ObjectId(coDe.lop_hoc_id); // từ coDe ta có được id lớp học
+                        const svien = mongoose.Types.ObjectId(sinhVien._id);
+                        SinhVien.findByIdAndUpdate({ _id:svien }, { $push: { ds_lop_hoc: _id }}) // thêm lớp học vào sinh viên
+                          .then(sv => {
+                            if (sv) {
+                              LopHoc.findByIdAndUpdate({ _id }, { $push: { ds_sinh_vien: svien } }) // thêm sinh viên vào lớp học
+                                .then(lopHoc => {
+                                  res.json({ 'success': true, lopHoc }).status(200);
+                                })
+                                .catch(e => noticeCrash(res));
+                            }
+                          })
+                          .catch(e => noticeCrash(res));
+                      }
+                    })
+                    .catch(e => noticeCrash(res));
+                }
+              })
+              .catch(e => noticeCrash(res));
+          } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200);
         }
-        else return res.json({ 'success': false, 'msg': 'Email của bạn bị sai' }).status(200);
-      } else return res.json({ 'success': false, 'msg': 'Nhập mã sai' }).status(204);
+        else return res.json({ 'success': false, 'msg': 'Nhập email sai' }).status(200);
+      } else return res.json({ 'success': false, 'msg': 'Nhập code sai' }).status(204);
     })
     .catch(e => noticeCrash(res));
+
 
 }
 

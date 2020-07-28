@@ -29,20 +29,26 @@ const suaThongTin = (req, res) => {
         return;
     }
     const nguoi_dung_id = mongoose.Types.ObjectId(req.params.id);
-    const ma_sv = req.body.thong_tin_sua.ma_sv;
-    const ho = req.body.thong_tin_sua.ho;
-    const ten = req.body.thong_tin_sua.ten;
-    const ngay_sinh = req.body.thong_tin_sua.ngay_sinh;
-    const gioi_tinh = req.body.thong_tin_sua.gioi_tinh;
-    const sdt = req.body.thong_tin_sua.sdt;
-    const email = req.body.thong_tin_sua.email;
+    //const ma_sv = req.body.thong_tin_sua.ma_sv;
+    // const ho = req.body.thong_tin_sua.ho;
+    // const ten = req.body.thong_tin_sua.ten;
+    // const ngay_sinh = req.body.thong_tin_sua.ngay_sinh;
+    // const gioi_tinh = req.body.thong_tin_sua.gioi_tinh;
+    // const sdt = req.body.thong_tin_sua.sdt;
+    // const email = req.body.thong_tin_sua.email;
     //console.log(req.body);
     //console.log(req.body.thong_tin_sua.email)
     SuaThongTin.create(
         {
             'nguoi_dung_id': nguoi_dung_id,
             'ly_do': req.body.ly_do,
-            'thong_tin_sua': {ma_sv, ho , ten , ngay_sinh, gioi_tinh, sdt, email},//chổ này create ntn 
+            'thong_tin_sua': {ma_sv : req.body.thong_tin_sua.ma_sv, 
+                ho: req.body.thong_tin_sua.ho,
+                ten: req.body.thong_tin_sua.ten ,
+                ngay_sinh: req.body.thong_tin_sua.ngay_sinh, 
+                gioi_tinh: req.body.thong_tin_sua.gioi_tinh,
+                sdt: req.body.thong_tin_sua.sdt, 
+                email: req.body.thong_tin_sua.email},//chổ này create ntn 
             'trang_thai': Boolean(false),
             'la_sinhvien': Boolean(true)
         })
