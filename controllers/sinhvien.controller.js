@@ -133,7 +133,7 @@ const sendMail = (user, link) => {
 const makeid = () => {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < 10; i++)
+    for (var i = 0; i < 50; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
@@ -175,12 +175,13 @@ const doiMatKhau = (req, res) => {
         res.status(200).json({ 'success': false, errors: errors.array() });
         return;
     }
-    const code= req.body.code ;
-    const email= req.body.email ;
-    QuenMatKhau.findOne({ email :req.body.email , code: req.body.code})
+    // const code = req.params.id ;
+    // const email= req.body.email ;
+    QuenMatKhau.findOne({ email :req.body.email})
         .then(user => {
             if (user) {
-                const timenow = new Date().getTime();
+                if(user.code === req.params.id){
+                    const timenow = new Date().getTime();
                 const timeUser = user.expire;
                 const timePass = timeUser - timenow;
                 if (timePass > 0) {
@@ -189,7 +190,7 @@ const doiMatKhau = (req, res) => {
                     SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: req.body.mat_khau } })
                         .then(pass => {
                             if (pass) {
-                                QuenMatKhau.deleteMany({ email })
+                                QuenMatKhau.deleteMany({ email:req.body.email })
                                     .then(kq => {
                                         if (kq) {
                                             return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
@@ -200,7 +201,8 @@ const doiMatKhau = (req, res) => {
                         })
                         .catch(e => noticeCrash(res));
                 } else return res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
-            } //else return res.json({ 'success': 'email hoặc code sai' });
+                } else return res.json({'success':'Đường dẫn sai'});
+            } else return res.json({ 'success': 'Email sai!' });
         })
         .catch(e => noticeCrash(res));
 }

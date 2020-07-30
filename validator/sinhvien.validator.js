@@ -54,9 +54,6 @@ let changePassWord = () => {
             .not()
             .isEmpty(),
         check('mat_khau', 'password phải từ 6-24 kí tự').isLength({min: 6, max: 24}),
-        check('code', 'email không được bỏ trống')
-            .not()
-            .isEmpty(),
     ];
 }
 
