@@ -13,7 +13,7 @@ const { validationResult } = require('express-validator');
 
 const loadLopHocThamGia = (req, res) => {
   const _id = req.params.id;
-  SinhVien.findById({ _id }).select("ds_lop_hoc ho ten")
+  SinhVien.findById({ _id }).select("ds_lop_hoc ho ten") //load id từ sinh viên xem đc sinh viên đó tham gia lớp học nào
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
     .then(lopHoc => {
       const data = {
@@ -24,7 +24,6 @@ const loadLopHocThamGia = (req, res) => {
     .catch(e => noticeCrash(res));
 }
 const loadDsSinhVienTrongLop = (req, res) => {
-
   const _id = req.params.id;
   LopHoc.findById({ _id }).select("tieu_de ds_sinh_vien nguoi_tao_id")
     .populate({ path: "nguoi_tao_id", select: "ho ten hoten" })
@@ -65,17 +64,17 @@ const thamGiaLopHoc = (req, res) => {
     .then(coDe => {
       if (coDe) {
         if (coDe.email === email) { //  mail được mời === mail từ req.body
-          if (coDe.kich_hoat === Boolean(false)) {
+          if (coDe.kich_hoat === Boolean(false)) { //trạng thái invite là false thì thực hiện tiếp cv
             Invite.updateOne({ code }, { $set: { kich_hoat: Boolean(true) } }) // update lại trạng thái
               .then(kichHoat => {
                 if (kichHoat) {
                   SinhVien.findOne({ email }) // tìm ra sinh viên được mời bằng mail
                     .then(sinhVien => {
-                      if (sinhVien) {
+                      if (sinhVien) { // nếu có sinh viên
                         console.log(sinhVien)
                         const _id = mongoose.Types.ObjectId(coDe.lop_hoc_id); // từ coDe ta có được id lớp học
                         const svien = mongoose.Types.ObjectId(sinhVien._id);
-                        SinhVien.findByIdAndUpdate({ _id:svien }, { $push: { ds_lop_hoc: _id }}) // thêm lớp học vào sinh viên
+                        SinhVien.findByIdAndUpdate({ _id: svien }, { $push: { ds_lop_hoc: _id } }) // thêm lớp học vào sinh viên
                           .then(sv => {
                             if (sv) {
                               LopHoc.findByIdAndUpdate({ _id }, { $push: { ds_sinh_vien: svien } }) // thêm sinh viên vào lớp học
@@ -86,13 +85,13 @@ const thamGiaLopHoc = (req, res) => {
                             }
                           })
                           .catch(e => noticeCrash(res));
-                      }
+                      } return res.json({ 'success': false, 'msg': 'Không có sinh viên' }).status(401);
                     })
                     .catch(e => noticeCrash(res));
                 }
               })
               .catch(e => noticeCrash(res));
-          } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200);
+          } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200); // trạng thái true đã tham gia lớp
         }
         else return res.json({ 'success': false, 'msg': 'Nhập email sai' }).status(200);
       } else return res.json({ 'success': false, 'msg': 'Nhập code sai' }).status(204);

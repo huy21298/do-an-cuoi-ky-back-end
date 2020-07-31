@@ -17,8 +17,8 @@ const loadBaiThi = (req, res) => {
         .then(baiThi => {
             if (baiThi) {
                 var countDownDate = new Date(moment(baiThi.ngay_thi).format('lll')).getTime(); //Jan 5, 2021 15:31:21
-                var now = new Date().getTime();
-                var distance = countDownDate - now;
+                var now = new Date().getTime(); // thời gian hiện tại
+                var distance = countDownDate - now; // thời gian còn lại
                 // Time calculations for days, hours, minutes and seconds
                 var days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -33,10 +33,8 @@ const loadBaiThi = (req, res) => {
                     res.json({ 'success': true, endTime }).status(200);
                 }
                 else return res.json({ 'success': true, baiThi }).status(200);
-
             }
         })
         .catch(e => noticeCrash(res));
-
 }
 module.exports = { loadBaiThi };
