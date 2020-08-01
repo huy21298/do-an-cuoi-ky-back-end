@@ -62,7 +62,7 @@ const suaThongTin = (req, res) => {
 
 }
 const CapNhatAvatar = (req, res) => {
-    const   _id = req.user._id;
+    const _id = req.user._id;
     //console.log(req.user._id)
     SinhVien.findById({ _id })
         .then(user => {
@@ -170,34 +170,36 @@ const doiMatKhau = (req, res) => {
         res.status(403).json({ 'success': false, errors: errors.array() });
         return;
     }
-    QuenMatKhau.findOne({ email: req.body.email }) // tìm mail sinh viên có trong bảng quên mk
+    QuenMatKhau.findOne({ code: req.params.id }) // tìm mail sinh viên có trong bảng quên mk
         .then(user => {
-            if (user) {
-                if (user.code === req.params.id) { // so sánh mã code từ paramsid với code bảng quên mk
-                    const timenow = new Date().getTime(); // thời gian hiện tại
-                    const timeUser = user.expire; // thời gian sử dụng của code
-                    const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
-                    if (timePass > 0) { // nếu timePass > 0 thì code còn hoạt động ngược lại gửi lại code
-                        hashPassWord(req.body.mat_khau) // mã hóa pass
-                            .then(kq => {
-                                SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
-                                    .then(pass => {
-                                        if (pass) {
-                                            QuenMatKhau.deleteMany({ email: req.body.email }) // sau khi update xóa bảng quên mật khẩu
-                                                .then(kq => {
-                                                    if (kq) {
-                                                        return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
-                                                    }
-                                                })
-                                                .catch(e => noticeCrash(res));
-                                        }
-                                    })
-                                    .catch(e => noticeCrash(res));
-                            })
-                            .catch(e => noticeCrash(res));
-                    } else return res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
-                } else return res.json({ 'success': 'Đường dẫn sai' });
-            } else return res.json({ 'success': 'Email sai!' });
+            if (!user) {
+                res.json({ 'success': false, 'msg': 'Đường dẫn sai' });
+            }
+            else if (user.email === req.body.email) {
+                const timenow = new Date().getTime(); // thời gian hiện tại
+                const timeUser = user.expire; // thời gian sử dụng của code
+                const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
+                if (timePass > 0) {
+                    hashPassWord(req.body.mat_khau) // mã hóa pass
+                        .then(kq => {
+                            SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
+                                .then(pass => {
+                                    if (pass) {
+                                        QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}}) // sau khi update xóa bảng quên mật khẩu
+                                            .then(kq => {
+                                                if (kq) {
+                                                    return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
+                                                }
+                                            })
+                                            .catch(e => noticeCrash(res));
+                                    }
+                                })
+                                .catch(e => noticeCrash(res));
+                        })
+                        .catch(e => noticeCrash(res));
+                }
+                else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
+            } else res.json({ 'success': false, 'msg': 'Sai mail' });
         })
         .catch(e => noticeCrash(res));
 }
