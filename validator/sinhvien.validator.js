@@ -37,10 +37,10 @@ let validateLogin = () => {
             .not()
             .isEmpty(),
         check('email', 'email không hợp lệ').isEmail(),
-        check('mat_khau', 'password không được bỏ trống')
+        check('mat_khau', 'Mật khẩu không được bỏ trống')
             .not()
             .isEmpty(),
-        check('mat_khau', 'password phải từ 6-24 kí tự').isLength({min: 6, max: 24})
+        check('mat_khau', 'Mật khẩu phải từ 6-24 kí tự').isLength({min: 6, max: 24})
     ];
 }
 
@@ -50,10 +50,10 @@ let changePassWord = () => {
             .not()
             .isEmpty(),
         check('email', 'email không hợp lệ').isEmail(),
-        check('mat_khau', 'password không được bỏ trống')
+        check('mat_khau', 'Mật khẩu không được bỏ trống')
             .not()
             .isEmpty(),
-        check('mat_khau', 'password phải từ 6-24 kí tự').isLength({min: 6, max: 24}),
+        check('mat_khau', 'Mật khẩu phải từ 6-24 kí tự').isLength({min: 6, max: 24}),
     ];
 }
 

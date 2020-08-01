@@ -5,18 +5,13 @@ const logger = require("morgan");
 const bodyParser = require("body-parser");
 const app = express();
 const passport = require("passport");
-// const session = require('express-session');
-// const passport = require("passport");
-// const LocalStrategy = require('passport-local').Strategy;
-// const {check} = require('express-validator');
+const cors = require('cors');
 /** Import custom module */
 require("./model/connectDB")();
 const baiThiRoute = require("./routers/api-v1/baithi.router");
 const baiTapRoute = require("./routers/api-v1/baitap.router");
 const lopHocRoute = require("./routers/api-v1/lophoc.router");
 const sinhVienRoute = require("./routers/api-v1/sinhvien.router");
-const validate = require("./validator/sinhvien.validator");
-const loGinRoute =require("./routers/api-v1/login.router");
 const dangNhapRoute = require("./routers/api-v1/dang-nhap.router");
 const passwordRoute= require("./routers/api-v1/password");
 /** Define middleware */
@@ -34,6 +29,9 @@ app.use(express.static(path.join(__dirname, "public")));
 //   saveUninitialized: true,
 //   resave: true
 // }))
+app.use(cors({
+  origin: "http://localhost:3000"
+}))
 app.use(passport.initialize()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -43,7 +41,7 @@ require('./authenticate/passport')(passport);
 /** Define route */
 app.use("/api/v1/password",passwordRoute);
 app.use("/api/v1/dang-nhap", dangNhapRoute)
-app.use(passport.authenticate("jwt", { session: false }));
+// app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/lop-hoc", lopHocRoute); // localhost/api/v1/lop-Hoc

@@ -5,10 +5,10 @@ const Schema = mongoose.Schema;
 const lichSuSchema = new Schema({
 
     id : Number,
+    ma_log: String,
     noi_dung : String,
-    nguoi_tao_id : Number, 
-    ngay_tao : Date,
-    lop_hoc_id : Number
+    nguoi_tao_id : Number,
+    loai_nguoi_dung: Number
 
 },
 {
