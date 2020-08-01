@@ -24,7 +24,8 @@ const loadBaiThi = (req, res) => {
                 var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                if (countDownDate - now < 0) {
+                console.log(countDownDate-now)
+                if ( now > countDownDate + 900000 ) { // nếu time hiện tại > time thi +15p 
                     res.json({ 'success': true, 'msg': 'Bạn đã hoàn thành' }).status(200);
                 }
                 else if (countDownDate - now > 0) {
@@ -32,7 +33,9 @@ const loadBaiThi = (req, res) => {
                         + minutes + "phút " + seconds + "giây ";
                     res.json({ 'success': true, endTime }).status(200);
                 }
-                else return res.json({ 'success': true, baiThi }).status(200);
+                else if (countDownDate - now ===0  || now < countDownDate + 900000 ) { // nếu time hiện tại < time thi +15p 
+                     res.json({ 'success': true, baiThi }).status(200);
+                }
             }
         })
         .catch(e => noticeCrash(res));

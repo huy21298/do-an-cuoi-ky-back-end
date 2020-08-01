@@ -220,4 +220,48 @@ const resetCode = (req, res) => {
         .catch(e => noticeCrash(res));
 }
 
-module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, resetCode }
+const updateMatKhau = (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(200).json({ 'success': false, errors: errors.array() });
+        return;
+    }
+    const _id = req.params.id;
+    const { mat_khau1, mat_khau2 } = req.body;
+    SinhVien.findOne({ _id })
+        .then(sv => {
+            //console.log(sv)
+            if (sv == null) {
+                return res.status(401).json({
+                    'success': false,
+                    'msg': "Sai id người dùng",
+                });
+            }
+         else   bcrypt.compare(mat_khau1, sv.mat_khau).then(ketQua => { // so sánh pass
+                if (!ketQua) {
+                    return res.status(401).json({
+                        success: false,
+                        msg: "Mật khẩu cũ không đúng",
+                    });
+                }
+                hashPassWord(req.body.mat_khau2) // mã hóa pass
+                    .then(kq => {
+                        if (kq) {
+                            SinhVien.updateOne({ _id }, { $set: { mat_khau: kq } })
+                                .then(up => {
+                                    if (up) {
+                                        res.json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" });
+                                    }
+                                })
+                                .catch(e => noticeCrash(res));
+                        }
+                    })
+                    .catch(e => noticeCrash(res));
+
+            })
+                .catch(e => noticeCrash(res));
+        }).catch(e => noticeCrash(res));
+}
+
+
+module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, resetCode, updateMatKhau }
