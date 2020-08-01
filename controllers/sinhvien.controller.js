@@ -96,8 +96,8 @@ const sendMail = (user, link) => {
     const option = {
         service: 'gmail',
         auth: {
-            user: 'giauvo02051999@gmail.com', // email hoặc username
-            pass: 'giau02051999' // password
+            user: '0306171130@caothang.edu.vn', // email hoặc username
+            pass: '598296467' // password
         }
     };
     var transporter = nodemailer.createTransport(option);
@@ -108,7 +108,7 @@ const sendMail = (user, link) => {
         } else { //Nếu thành công.
             console.log('Kết nối thành công!');
             var mail = {
-                from: 'giauvo02051999@gmail.com', // Địa chỉ email của người gửi
+                from: '0306171130@caothang.edu.vn', // Địa chỉ email của người gửi
                 to: user, // Địa chỉ email của người gửi
                 subject: 'Cập nhật lại mật khẩu', // Tiêu đề mail
                 text: link, // Nội dung mail dạng text
@@ -134,13 +134,14 @@ const makeid = () => {
 HTMLmail = (code) => {
     return ` 
     Bấm vào Link để thay đỗi mật khẩu:
-    http://localhost:3000/api/v1/password/doi-mat-khau/${code} `
+    http://localhost:8000/api/v1/password/doi-mat-khau/${code} `
 }
 
 const quenMatKhau = (req, res) => {
     const email = req.body.email;
     SinhVien.findOne({ email })
         .then(eMail => {
+            //console.log(eMail)
             if (eMail != null) {
                 // var token = uuid.v4();
                 const code = makeid();
