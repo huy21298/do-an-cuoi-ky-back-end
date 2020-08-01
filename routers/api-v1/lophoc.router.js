@@ -5,5 +5,5 @@ const { loadLopHocThamGia , loadDsSinhVienTrongLop,loadBaiThiTrongMotLop ,thamGi
 router.get("/", loadLopHocThamGia); //id sinh vien
 router.get("/:id/danh-sach-sinh-vien",loadDsSinhVienTrongLop ); //id lớp
 router.get("/:id/bai-thi", loadBaiThiTrongMotLop); //id lớp
-router.post("/tham-gia",thamGiaLopHoc)
+router.post("/tham-gia",validate.validateLopHoc(),thamGiaLopHoc)
 module.exports = router;

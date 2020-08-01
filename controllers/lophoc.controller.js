@@ -58,46 +58,43 @@ const loadBaiThiTrongMotLop = (req, res) => {
 }
 
 const thamGiaLopHoc = (req, res) => {
-
-  const code = req.body.code;
-  const email = req.body.email;
-  Invite.findOne({ code }) // tìm mã code
-    .then(coDe => {
-      if (coDe) {
-        if (coDe.email === email) { //  mail được mời === mail từ req.body
-          if (coDe.kich_hoat === Boolean(false)) { //trạng thái invite là false thì thực hiện tiếp cv
-            Invite.updateOne({ code }, { $set: { kich_hoat: Boolean(true) } }) // update lại trạng thái
-              .then(kichHoat => {
-                if (kichHoat) {
-                  SinhVien.findOne({ email }) // tìm ra sinh viên được mời bằng mail
-                    .then(sinhVien => {
-                      if (sinhVien) { // nếu có sinh viên
-                        console.log(sinhVien)
-                        const _id = mongoose.Types.ObjectId(coDe.lop_hoc_id); // từ coDe ta có được id lớp học
-                        const svien = mongoose.Types.ObjectId(sinhVien._id);
-                        SinhVien.findByIdAndUpdate({ _id: svien }, { $push: { ds_lop_hoc: _id } }) // thêm lớp học vào sinh viên
-                          .then(sv => {
-                            if (sv) {
-                              LopHoc.findByIdAndUpdate({ _id }, { $push: { ds_sinh_vien: svien } }) // thêm sinh viên vào lớp học
-                                .then(lopHoc => {
-                                  res.json({ 'success': true, lopHoc }).status(200);
-                                })
-                                .catch(e => noticeCrash(res));
-                            }
-                          })
-                          .catch(e => noticeCrash(res));
-                      } return res.json({ 'success': false, 'msg': 'Không có sinh viên' }).status(401);
-                    })
-                    .catch(e => noticeCrash(res));
-                }
-              })
-              .catch(e => noticeCrash(res));
-          } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200); // trạng thái true đã tham gia lớp
-        }
-        else return res.json({ 'success': false, 'msg': 'Nhập email sai' }).status(200);
-      } else return res.json({ 'success': false, 'msg': 'Nhập code sai' }).status(204);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+      res.status(403).json({ 'success': false, errors: errors.array() });
+      return;
+  }
+  Invite.findOne({ code: req.body.code }) // tìm mã code
+    .then(macode => {
+      if (!macode) {
+        res.json({ 'success': false, 'msg': 'Không có mã code này' }).status(403);
+      } else if (macode.email === req.body.email) {
+        if (macode.kich_hoat === Boolean(false)) {
+          Invite.updateOne({ code: req.body.code }, { $set: { kich_hoat: Boolean(true) } })
+            .then(kichHoat => {
+              if (kichHoat) {
+                SinhVien.findOne({ email: req.body.email })
+                  .then(svien => {
+                    const _id = mongoose.Types.ObjectId(macode.lop_hoc_id); // từ coDe ta có được id lớp học
+                    const sinhvien = mongoose.Types.ObjectId(svien._id);
+                    SinhVien.findByIdAndUpdate({ _id: sinhvien }, { $push: { ds_lop_hoc: _id } }) // thêm lớp học vào sinh viên
+                      .then(sv => {
+                        if (sv) {
+                          LopHoc.findByIdAndUpdate({ _id }, { $push: { ds_sinh_vien: sinhvien } }) // thêm sinh viên vào lớp học
+                            .then(lopHoc => {
+                              res.json({ 'success': true, lopHoc }).status(200);
+                            })
+                            .catch(e => noticeCrash(res));
+                        }
+                      })
+                      .catch(e => noticeCrash(res));
+                  })
+              }
+            })
+            .catch(e => noticeCrash(res));
+        } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200);
+      } else res.json({ 'success': false, 'msg': 'Sai email' }).status(403);
     })
-    .catch(e => noticeCrash(res));
+    .catch(e => console.log(e));
 
 
 }

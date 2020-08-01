@@ -146,12 +146,12 @@ const quenMatKhau = (req, res) => {
                 // var token = uuid.v4();
                 const code = makeid();
                 const timenow = new Date().getTime();
-                const expire = timenow + 3600 * 60 * 60;
+                const expire = timenow + 14400000 ;
                 QuenMatKhau.create({ email: req.body.email, code, expire })
                     .then(quenMatKhau => {
                         if (quenMatKhau) {
                             sendMail(req.body.email, HTMLmail(code));
-                            return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" });
+                            return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" }).status(200);
                         }
                     })
                     .catch(e => noticeCrash(res));
@@ -188,7 +188,7 @@ const doiMatKhau = (req, res) => {
                                         QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}}) // sau khi update xóa bảng quên mật khẩu
                                             .then(kq => {
                                                 if (kq) {
-                                                    return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
+                                                    return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" }).status(200);
                                                 }
                                             })
                                             .catch(e => noticeCrash(res));
@@ -198,15 +198,15 @@ const doiMatKhau = (req, res) => {
                         })
                         .catch(e => noticeCrash(res));
                 }
-                else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
-            } else res.json({ 'success': false, 'msg': 'Sai mail' });
+                else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" }).status(403);
+            } else res.json({ 'success': false, 'msg': 'Sai mail' }).status(403);
         })
         .catch(e => noticeCrash(res));
 }
 const lamMoiToken = (req, res) => {
     code = makeid();
     var timenow = new Date().getTime();
-    var expire = timenow + 3600 * 60;
+    var expire = timenow + 14400000 ;
     QuenMatKhau.update({ email: req.body.email, $set: { code, expire } })
         .then(quenMatKhau => {
             if (quenMatKhau) {
@@ -248,7 +248,7 @@ const updateMatKhau = (req, res) => {
                             SinhVien.updateOne({ _id }, { $set: { mat_khau: kq } })
                                 .then(up => {
                                     if (up) {
-                                        res.json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" });
+                                        res.json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" }).status(200);
                                     }
                                 })
                                 .catch(e => noticeCrash(res));

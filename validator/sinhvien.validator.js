@@ -76,7 +76,7 @@ let validateLopHoc = () => {
             .not()
             .isEmpty(),
         check('email', 'email không hợp lệ').isEmail(),
-        check('code', 'email không được bỏ trống')
+        check('code', 'code không được bỏ trống')
             .not()
             .isEmpty(),
     ];
