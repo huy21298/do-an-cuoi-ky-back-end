@@ -133,13 +133,13 @@ const sendMail = (user, link) => {
 const makeid = () => {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (var i = 0; i < 50; i++)
+    for (var i = 0; i < 20; i++)
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
 HTMLmail = (code) => {
     return ` 
-
+    Bấm vào Link để thay đỗi mật khẩu:
     http://localhost:3000/api/v1/password/doi-mat-khau/${code} `
 }
 
@@ -151,7 +151,7 @@ const quenMatKhau = (req, res) => {
                 // var token = uuid.v4();
                 const code = makeid();
                 const timenow = new Date().getTime();
-                const expire = timenow + 3600 * 60*60;
+                const expire = timenow + 3600 * 60 * 60;
                 QuenMatKhau.create({ email: req.body.email, code, expire })
                     .then(quenMatKhau => {
                         if (quenMatKhau) {
@@ -166,8 +166,8 @@ const quenMatKhau = (req, res) => {
         })
         .catch(e => noticeCrash(res));
 }
-const hashPassWord = (mat_khau) => {
-    return bcrypt.hash(mat_khau, 10)
+const hashPassWord = async (mat_khau) => {
+    return await bcrypt.hash(mat_khau, 10)
 }
 const doiMatKhau = (req, res) => {
     const errors = validationResult(req);
@@ -175,33 +175,33 @@ const doiMatKhau = (req, res) => {
         res.status(200).json({ 'success': false, errors: errors.array() });
         return;
     }
-    // const code = req.params.id ;
-    // const email= req.body.email ;
-    QuenMatKhau.findOne({ email :req.body.email})
+    QuenMatKhau.findOne({ email: req.body.email }) // tìm mail sinh viên có trong bảng quên mk
         .then(user => {
             if (user) {
-                if(user.code === req.params.id){
-                    const timenow = new Date().getTime();
-                const timeUser = user.expire;
-                const timePass = timeUser - timenow;
-                if (timePass > 0) {
-                    //pwd = bcrypt.hash(req.body.mat_khau, 10)
-                    // console.log(timePass)
-                    SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: req.body.mat_khau } })
-                        .then(pass => {
-                            if (pass) {
-                                QuenMatKhau.deleteMany({ email:req.body.email })
-                                    .then(kq => {
-                                        if (kq) {
-                                            return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
+                if (user.code === req.params.id) { // so sánh mã code từ paramsid với code bảng quên mk
+                    const timenow = new Date().getTime(); // thời gian hiện tại
+                    const timeUser = user.expire; // thời gian sử dụng của code
+                    const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
+                    if (timePass > 0) { // nếu timePass > 0 thì code còn hoạt động ngược lại gửi lại code
+                        hashPassWord(req.body.mat_khau) // mã hóa pass
+                            .then(kq => {
+                                SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
+                                    .then(pass => {
+                                        if (pass) {
+                                            QuenMatKhau.deleteMany({ email: req.body.email }) // sau khi update xóa bảng quên mật khẩu
+                                                .then(kq => {
+                                                    if (kq) {
+                                                        return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
+                                                    }
+                                                })
+                                                .catch(e => noticeCrash(res));
                                         }
                                     })
                                     .catch(e => noticeCrash(res));
-                            }
-                        })
-                        .catch(e => noticeCrash(res));
-                } else return res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
-                } else return res.json({'success':'Đường dẫn sai'});
+                            })
+                            .catch(e => noticeCrash(res));
+                    } else return res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
+                } else return res.json({ 'success': 'Đường dẫn sai' });
             } else return res.json({ 'success': 'Email sai!' });
         })
         .catch(e => noticeCrash(res));
@@ -220,4 +220,48 @@ const resetCode = (req, res) => {
         .catch(e => noticeCrash(res));
 }
 
-module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, resetCode }
+const updateMatKhau = (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        res.status(200).json({ 'success': false, errors: errors.array() });
+        return;
+    }
+    const _id = req.params.id;
+    const { mat_khau1, mat_khau2 } = req.body;
+    SinhVien.findOne({ _id })
+        .then(sv => {
+            //console.log(sv)
+            if (sv == null) {
+                return res.status(401).json({
+                    'success': false,
+                    'msg': "Sai id người dùng",
+                });
+            }
+         else   bcrypt.compare(mat_khau1, sv.mat_khau).then(ketQua => { // so sánh pass
+                if (!ketQua) {
+                    return res.status(401).json({
+                        success: false,
+                        msg: "Mật khẩu cũ không đúng",
+                    });
+                }
+                hashPassWord(req.body.mat_khau2) // mã hóa pass
+                    .then(kq => {
+                        if (kq) {
+                            SinhVien.updateOne({ _id }, { $set: { mat_khau: kq } })
+                                .then(up => {
+                                    if (up) {
+                                        res.json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" });
+                                    }
+                                })
+                                .catch(e => noticeCrash(res));
+                        }
+                    })
+                    .catch(e => noticeCrash(res));
+
+            })
+                .catch(e => noticeCrash(res));
+        }).catch(e => noticeCrash(res));
+}
+
+
+module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, resetCode, updateMatKhau }
