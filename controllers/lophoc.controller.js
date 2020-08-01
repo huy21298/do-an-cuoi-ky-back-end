@@ -12,7 +12,8 @@ const { noticeCrash } = require("./notice-messages");
 const { validationResult } = require('express-validator');
 
 const loadLopHocThamGia = (req, res) => {
-  const _id = req.params.id;
+  const _id = req.user._id;
+  console.log(_id);
   SinhVien.findById({ _id }).select("ds_lop_hoc ho ten") //load id từ sinh viên xem đc sinh viên đó tham gia lớp học nào
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
     .then(lopHoc => {

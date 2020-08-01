@@ -23,8 +23,8 @@ const loadbaiTap = (req, res) => {
 }
 
 const nopbaiTap = (req, res) => {
-    const _id = mongoose.Types.ObjectId(req.params.idSinhVien);
-    SinhVien.findOne({ _id })
+    const _id = req.user._id;
+    SinhVien.findById({ _id })
         .then(sinhVien => {
                 let _id = mongoose.Types.ObjectId(req.params.idBaiTap);
                 BaiTap.findById({ _id })

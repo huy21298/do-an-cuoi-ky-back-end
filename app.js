@@ -22,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
+
 /** Define middleware cho passport */ 
 // require("./model/passport")(passport);
 // app.use(session({
@@ -29,19 +30,22 @@ app.use(express.static(path.join(__dirname, "public")));
 //   saveUninitialized: true,
 //   resave: true
 // }))
+//app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
   origin: "http://localhost:3000"
 }))
 app.use(passport.initialize()); 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+//app.use(express.static(path.join(__dirname, "public")));
+
 require('./authenticate/passport')(passport);
 // app.use(passport.session());
 
 /** Define route */
 app.use("/api/v1/password",passwordRoute);
 app.use("/api/v1/dang-nhap", dangNhapRoute)
-// app.use(passport.authenticate("jwt", { session: false }));
+app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/lop-hoc", lopHocRoute); // localhost/api/v1/lop-Hoc

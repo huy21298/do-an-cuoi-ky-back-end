@@ -16,7 +16,7 @@ const { compareSync } = require("bcrypt");
 
 const LoadThongTinSinhVien = (req, res) => {
 
-    const _id = req.params.id;
+    const { _id } = req.user;
     SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien mat_khau sdt")
         .then(thongTinSinhVien => {
             const data = {
@@ -32,19 +32,10 @@ const suaThongTin = (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(200).json({ 'success': false, errors: errors.array() });
+        res.status(403).json({ 'success': false, errors: errors.array() });
         return;
     }
-    const nguoi_dung_id = mongoose.Types.ObjectId(req.params.id);
-    //const ma_sv = req.body.thong_tin_sua.ma_sv;
-    // const ho = req.body.thong_tin_sua.ho;
-    // const ten = req.body.thong_tin_sua.ten;
-    // const ngay_sinh = req.body.thong_tin_sua.ngay_sinh;
-    // const gioi_tinh = req.body.thong_tin_sua.gioi_tinh;
-    // const sdt = req.body.thong_tin_sua.sdt;
-    // const email = req.body.thong_tin_sua.email;
-    //console.log(req.body);
-    //console.log(req.body.thong_tin_sua.email)
+    const nguoi_dung_id = req.user._id;
     SuaThongTin.create(
         {
             'nguoi_dung_id': nguoi_dung_id,
@@ -68,12 +59,15 @@ const suaThongTin = (req, res) => {
             }
 
         }).catch(e => noticeCrash(res));
+
 }
 const CapNhatAvatar = (req, res) => {
-    const _id = req.params.id;
+    const   _id = req.user._id;
+    //console.log(req.user._id)
     SinhVien.findById({ _id })
         .then(user => {
             if (user) {
+                //console.log(user)
                 const processedFile = req.file || {}; // MULTER xử lý và gắn đối tượng FILE vào req
                 let orgName = processedFile.originalname || ''; // Tên gốc trong máy tính của người upload
                 orgName = orgName.trim().replace(/ /g, "-")
@@ -94,7 +88,7 @@ const CapNhatAvatar = (req, res) => {
                     .catch(e => noticeCrash(res));
             }
         })
-        .catch(e => noticeCrash(res));
+        .catch(e => console.log(e));
 
 }
 
@@ -172,7 +166,7 @@ const hashPassWord = async (mat_khau) => {
 const doiMatKhau = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(200).json({ 'success': false, errors: errors.array() });
+        res.status(403).json({ 'success': false, errors: errors.array() });
         return;
     }
     QuenMatKhau.findOne({ email: req.body.email }) // tìm mail sinh viên có trong bảng quên mk
@@ -206,7 +200,7 @@ const doiMatKhau = (req, res) => {
         })
         .catch(e => noticeCrash(res));
 }
-const resetCode = (req, res) => {
+const lamMoiToken = (req, res) => {
     code = makeid();
     var timenow = new Date().getTime();
     var expire = timenow + 3600 * 60;
@@ -223,10 +217,11 @@ const resetCode = (req, res) => {
 const updateMatKhau = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(200).json({ 'success': false, errors: errors.array() });
+        res.status(403).json({ 'success': false, errors: errors.array() });
         return;
     }
-    const _id = req.params.id;
+    const { _id } = req.user;
+    console.log(req.user);
     const { mat_khau1, mat_khau2 } = req.body;
     SinhVien.findOne({ _id })
         .then(sv => {
@@ -237,7 +232,7 @@ const updateMatKhau = (req, res) => {
                     'msg': "Sai id người dùng",
                 });
             }
-         else   bcrypt.compare(mat_khau1, sv.mat_khau).then(ketQua => { // so sánh pass
+            else bcrypt.compare(mat_khau1, sv.mat_khau).then(ketQua => { // so sánh pass
                 if (!ketQua) {
                     return res.status(401).json({
                         success: false,
@@ -264,4 +259,4 @@ const updateMatKhau = (req, res) => {
 }
 
 
-module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, resetCode, updateMatKhau }
+module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, lamMoiToken, updateMatKhau }
