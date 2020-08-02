@@ -37,8 +37,6 @@ app.use(cors({
   origin: process.env.URL_FRONT_END
 }))
 app.use(passport.initialize()); 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
 //app.use(express.static(path.join(__dirname, "public")));
 
 require('./authenticate/passport')(passport);
