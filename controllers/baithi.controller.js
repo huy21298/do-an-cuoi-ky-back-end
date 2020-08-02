@@ -16,18 +16,6 @@ const { populate } = require("../model/nguoidung.model");
 
 const loadBaiThi = (req, res) => {
     const _id = req.params.id;
-    // BaiThi.findOne({_id})
-    // .populate({ path:"nguoi_tao_id", select:"ho ten "})
-    // .populate({path:"lop_hoc_id", select:"tieu_de"})
-    // .populate({path:"ds_cau_hoi.cau_hoi_id", select:"lua_chon.label lua_chon.value , noi_dung"})
-    // .then( baiThi => {
-    //     //console.log(baiThi)
-    //    if (!baiThi){
-    //         res.json({ 'success': true, 'msg': 'Không có bài thi này' }).status(200);
-    //     } else
-    //     res.json({ 'success': true, baiThi }).status(200);
-    // })
-    // .catch(e => console.log(e));
     BaiThi.findById({ _id })
         .populate({ path: "nguoi_tao_id", select: "ho ten " })
         .populate({ path: "lop_hoc_id", select: "tieu_de" })
