@@ -131,10 +131,10 @@ const makeid = () => {
         text += possible.charAt(Math.floor(Math.random() * possible.length));
     return text;
 }
-HTMLmail = (code) => {
+const HTMLmail = (code, email) => {
     return ` 
     Bấm vào Link để thay đỗi mật khẩu:
-    ${process.env.URL_FRONT_END}/lam-moi-mat-khau/${code} `
+    ${process.env.URL_FRONT_END}/lam-moi-mat-khau/${code}/${email}`
 }
 
 const quenMatKhau = (req, res) => {
@@ -150,58 +150,87 @@ const quenMatKhau = (req, res) => {
                 QuenMatKhau.create({ email: req.body.email, code, expire })
                     .then(quenMatKhau => {
                         if (quenMatKhau) {
-                            sendMail(req.body.email, HTMLmail(code));
+                            sendMail(req.body.email, HTMLmail(code, email));
                             return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" }).status(200);
                         }
                     })
                     .catch(e => noticeCrash(res));
                 //res.json({ 'success': true, token, 'now':timenow, 'token':timetoken,expire})
             }
-            else return res.json({ 'success': 'Mail không phải sinh viên' })
+            else return res.status(403).json({ 'success': false, "msg": 'Email không tồn tại' })
         })
         .catch(e => noticeCrash(res));
 }
-const hashPassWord = async (mat_khau) => {
-    return await bcrypt.hash(mat_khau, 10)
-}
-const doiMatKhau = (req, res) => {
+const doiMatKhau = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(403).json({ 'success': false, errors: errors.array() });
         return;
     }
-    QuenMatKhau.findOne({ code: req.params.id }) // tìm mail sinh viên có trong bảng quên mk
-        .then(user => {
-            if (!user) {
-                res.json({ 'success': false, 'msg': 'Đường dẫn sai' });
+
+    try {
+        const { code, email } = req.params;
+        const { mat_khau } = req.body;
+        const user = await QuenMatKhau.findOne({code});
+        if (!user) {
+           return res.status(403).json({ 'success': false, 'msg': 'Mã xác nhận không hợp lệ' });
+        }
+        
+        if (email !== user.email) {
+            return res.status(403).json({ 'success': false, 'msg': 'Email không tồn tại' });
+        }
+        const timenow = new Date().getTime(); // thời gian hiện tại
+        const timeUser = user.expire; // thời gian sử dụng của code
+        const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
+        if (timePass <= 0) {
+            res.status(403).json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
+        }
+        const newPassword = await bcrypt.hash(mat_khau, 10);
+        const ketQuaCapNhat = await SinhVien.updateOne({ email }, { $set: { mat_khau: newPassword}});
+        if (ketQuaCapNhat) {
+            const ketQuaXoaToken = await QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}});
+            if (ketQuaXoaToken) {
+                return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
             }
-            else if (user.email === req.body.email) {
-                const timenow = new Date().getTime(); // thời gian hiện tại
-                const timeUser = user.expire; // thời gian sử dụng của code
-                const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
-                if (timePass > 0) {
-                    hashPassWord(req.body.mat_khau) // mã hóa pass
-                        .then(kq => {
-                            SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
-                                .then(pass => {
-                                    if (pass) {
-                                        QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}}) // sau khi update xóa bảng quên mật khẩu
-                                            .then(kq => {
-                                                if (kq) {
-                                                    return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" }).status(200);
-                                                }
-                                            })
-                                            .catch(e => noticeCrash(res));
-                                    }
-                                })
-                                .catch(e => noticeCrash(res));
-                        })
-                        .catch(e => noticeCrash(res));
-                }
-                else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" }).status(403);
-            } else res.json({ 'success': false, 'msg': 'Sai mail' }).status(403);
-        })
-        .catch(e => noticeCrash(res));
+        }
+    } catch {
+        noticeCrash(res);
+    }
+
+
+
+    // QuenMatKhau.findOne({ code: req.params.id }) // tìm mail sinh viên có trong bảng quên mk
+    //     .then(user => {
+    //         if (!user) {
+    //             res.json({ 'success': false, 'msg': 'Đường dẫn sai' });
+    //         }
+    //         else if (user.email === req.body.email) {
+    //             const timenow = new Date().getTime(); // thời gian hiện tại
+    //             const timeUser = user.expire; // thời gian sử dụng của code
+    //             const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
+    //             if (timePass > 0) {
+    //                 const newPassword = await bcrypt.hash() // mã hóa pass
+    //                     .then(kq => {
+    //                         SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
+    //                             .then(pass => {
+    //                                 if (pass) {
+    //                                     QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}}) // sau khi update xóa bảng quên mật khẩu
+    //                                         .then(kq => {
+    //                                             if (kq) {
+    //                                                 return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" }).status(200);
+    //                                             }
+    //                                         })
+    //                                         .catch(e => noticeCrash(res));
+    //                                 }
+    //                             })
+    //                             .catch(e => noticeCrash(res));
+    //                     })
+    //                     .catch(e => noticeCrash(res));
+    //             }
+    //             else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" }).status(403);
+    //         } else res.json({ 'success': false, 'msg': 'Sai mail' }).status(403);
+    //     })
+    //     .catch(e => noticeCrash(res));
 }
 const lamMoiToken = (req, res) => {
     code = makeid();
