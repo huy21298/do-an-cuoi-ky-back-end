@@ -72,10 +72,6 @@ let resetPassWord = () => {
 
 let validateLopHoc = () => {
     return [
-        check('email', 'email không được bỏ trống')
-            .not()
-            .isEmpty(),
-        check('email', 'email không hợp lệ').isEmail(),
         check('code', 'code không được bỏ trống')
             .not()
             .isEmpty(),

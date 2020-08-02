@@ -164,7 +164,7 @@ const quenMatKhau = (req, res) => {
 const hashPassWord = async (mat_khau) => {
     return await bcrypt.hash(mat_khau, 10)
 }
-const doiMatKhau =async (req, res) => {
+const doiMatKhau = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(403).json({ 'success': false, errors: errors.array() });

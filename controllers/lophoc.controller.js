@@ -16,7 +16,7 @@ const loadLopHocThamGia = (req, res) => {
   console.log(_id);
   SinhVien.findById({ _id }).select("ds_lop_hoc ho ten") //load id từ sinh viên xem đc sinh viên đó tham gia lớp học nào
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
-    .populate({path:"ds_cau_hoi.cau_hoi_id"})
+    .populate({ path: "ds_cau_hoi.cau_hoi_id" })
     .then(lopHoc => {
       const data = {
         lopHoc
@@ -61,19 +61,17 @@ const loadBaiThiTrongMotLop = (req, res) => {
 const thamGiaLopHoc = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-      res.status(403).json({ 'success': false, errors: errors.array() });
-      return;
+    res.status(403).json({ 'success': false, errors: errors.array() });
+    return;
   }
   Invite.findOne({ code: req.body.code }) // tìm mã code
     .then(macode => {
-      if (!macode) {
-        res.json({ 'success': false, 'msg': 'Không có mã code này' }).status(403);
-      } else if (macode.email === req.body.email) {
+      if (macode) {
         if (macode.kich_hoat === Boolean(false)) {
           Invite.updateOne({ code: req.body.code }, { $set: { kich_hoat: Boolean(true) } })
             .then(kichHoat => {
               if (kichHoat) {
-                SinhVien.findOne({ email: req.body.email })
+                SinhVien.findOne({ email: macode.email })
                   .then(svien => {
                     const _id = mongoose.Types.ObjectId(macode.lop_hoc_id); // từ coDe ta có được id lớp học
                     const sinhvien = mongoose.Types.ObjectId(svien._id);
@@ -93,7 +91,7 @@ const thamGiaLopHoc = (req, res) => {
             })
             .catch(e => noticeCrash(res));
         } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200);
-      } else res.json({ 'success': false, 'msg': 'Sai email' }).status(403);
+      } else return res.status(403).json({ 'success': false, 'msg': 'Không có mã code này' });
     })
     .catch(e => console.log(e));
 
