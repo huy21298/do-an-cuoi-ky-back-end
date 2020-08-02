@@ -18,4 +18,4 @@ const cauHoiTracNghiemschema = new Schema({
         toJSON: { virtuals: true, getters: true },
     });
 
-module.exports = mongoose.model("CauHoiTracNghiem", cauHoiTracNghiemschema, "cau_hoi_trac_nghiem");
+module.exports = mongoose.model("TracNghiem", cauHoiTracNghiemschema, "cau_hoi_trac_nghiem");

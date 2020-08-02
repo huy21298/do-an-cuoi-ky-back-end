@@ -2,24 +2,21 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
+
+const cauHoi = {
+  cau_hoi_id: {type: Schema.Types.ObjectId, refPath:'ds_cau_hoi.loai'},
+  loai: {type: String, enum:['TracNghiem', 'TuLuan']},
+}
 const baiThi1Schema = new Schema(
   {
-    id : {type: Schema.Types.ObjectId, ref: "BaiThiGoc"}, 
-    tieu_de :String, 
-    loai_bai_thi : Number,
-    lop_hoc_id: { type: Schema.Types.ObjectId, ref: "LopHoc" },
-    ngay_thi : Date,
-    thoi_gian_thi: Date,
-    trang_thai: {
-      type: Boolean,
-      default: true,
-      get: (v) => {
-        return v === true ? "Phát hành" : "Bản nháp";
-      },
-    },
-    nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
-    ds_sinh_vien : [{ type: Schema.Types.ObjectId, ref: "SinhVien" }],
-    ds_cau_hoi : [{type: Array, default: []}]
+    tieu_de: String,
+    nguoi_tao_id: {type: Schema.Types.ObjectId, ref:'NguoiDung'},
+    lop_hoc_id: {type: Schema.Types.ObjectId, ref: 'LopHoc'},
+    ngay_thi: {type: Date, required: true},
+    thoi_gian_thi: {type: Number, required: true},
+    trang_thai: {type: Boolean, default: true},
+    ds_sinh_vien: [{type: Schema.Types.ObjectId, ref: 'SinhVien'}],
+    ds_cau_hoi: [cauHoi]
   },
   {
     timestamps: true,
@@ -28,4 +25,4 @@ const baiThi1Schema = new Schema(
   }
 );
 
-module.exports = mongoose.model("BaiThi1", baiThi1Schema, "bai_thi");
+module.exports = mongoose.model("BaiThi", baiThi1Schema, "bai_thi");

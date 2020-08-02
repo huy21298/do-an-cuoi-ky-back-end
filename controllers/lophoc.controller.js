@@ -16,6 +16,7 @@ const loadLopHocThamGia = (req, res) => {
   console.log(_id);
   SinhVien.findById({ _id }).select("ds_lop_hoc ho ten") //load id từ sinh viên xem đc sinh viên đó tham gia lớp học nào
     .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
+    .populate({path:"ds_cau_hoi.cau_hoi_id"})
     .then(lopHoc => {
       const data = {
         lopHoc
