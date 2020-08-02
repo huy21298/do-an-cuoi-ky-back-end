@@ -207,11 +207,11 @@ const lamMoiToken = (req, res) => {
     code = makeid();
     var timenow = new Date().getTime();
     var expire = timenow + 14400000 ;
-    QuenMatKhau.update({ email: req.body.email, $set: { code, expire } })
+    QuenMatKhau.updateOne({ email: req.body.email, $set: { code, expire } })
         .then(quenMatKhau => {
             if (quenMatKhau) {
-                sendMail(req.body.email, code);
-                return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" });
+                sendMail(req.body.email, HTMLmail(code));
+                return res.json({ 'success': true, 'msg': "Đã gửi lại mail... vui lòng kiểm tra mail của bạn !" });
             }
         })
         .catch(e => noticeCrash(res));
