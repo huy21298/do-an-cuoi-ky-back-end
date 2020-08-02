@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 /** Import third library  */
 const express = require("express");
 const path = require("path");
@@ -32,7 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // }))
 //app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
-  origin: "http://localhost:3000"
+  origin: process.env.URL_FRONT_END
 }))
 app.use(passport.initialize()); 
 app.use(bodyParser.urlencoded({ extended: false }));

@@ -96,8 +96,8 @@ const sendMail = (user, link) => {
     const option = {
         service: 'gmail',
         auth: {
-            user: '0306171130@caothang.edu.vn', // email hoặc username
-            pass: '598296467' // password
+            user: `${process.env.MAIL_NAME}`, // email hoặc username
+            pass: `${process.env.MAIL_PASSWORD}` // password
         }
     };
     var transporter = nodemailer.createTransport(option);
@@ -134,7 +134,7 @@ const makeid = () => {
 HTMLmail = (code) => {
     return ` 
     Bấm vào Link để thay đỗi mật khẩu:
-    http://localhost:8000/api/v1/password/doi-mat-khau/${code} `
+    ${process.env.URL_FRONT_END}/lam-moi-mat-khau/${code} `
 }
 
 const quenMatKhau = (req, res) => {

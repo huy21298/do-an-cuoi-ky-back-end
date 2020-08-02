@@ -46,7 +46,7 @@ router.post("/", validate.validateLogin(), (req, res) => {
       // const expiresIn =
       jwt.sign(
         payload,
-        "mysecret",
+        `${process.env.JWT_PRIVATE_KEY}`,
         { expiresIn: 3600 * 24 * 7 },
         (err, token) => {
           if (err) {

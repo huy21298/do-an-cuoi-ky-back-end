@@ -5,7 +5,7 @@ const SinhVien = require("../model/sinhvien.model");
 const jwt = require("jsonwebtoken");
 
 opts.jwtFromRequest = ExtractJWT.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = "mysecret";
+opts.secretOrKey = `${process.env.JWT_PRIVATE_KEY}`;
 
 module.exports = passport => {
     passport.use(
