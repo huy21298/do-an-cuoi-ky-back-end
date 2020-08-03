@@ -58,43 +58,47 @@ const loadBaiThiTrongMotLop = (req, res) => {
     .catch(e => noticeCrash(res));
 }
 
-const thamGiaLopHoc = (req, res) => {
+const thamGiaLopHoc = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(403).json({ 'success': false, errors: errors.array() });
     return;
   }
-  Invite.findOne({ code: req.body.code }) // tìm mã code
-    .then(macode => {
-      if (macode) {
-        if (macode.kich_hoat === Boolean(false)) {
-          Invite.updateOne({ code: req.body.code }, { $set: { kich_hoat: Boolean(true) } })
-            .then(kichHoat => {
-              if (kichHoat) {
-                SinhVien.findOne({ email: macode.email })
-                  .then(svien => {
-                    const _id = mongoose.Types.ObjectId(macode.lop_hoc_id); // từ coDe ta có được id lớp học
-                    const sinhvien = mongoose.Types.ObjectId(svien._id);
-                    SinhVien.findByIdAndUpdate({ _id: sinhvien }, { $push: { ds_lop_hoc: _id } }) // thêm lớp học vào sinh viên
-                      .then(sv => {
-                        if (sv) {
-                          LopHoc.findByIdAndUpdate({ _id }, { $push: { ds_sinh_vien: sinhvien } }) // thêm sinh viên vào lớp học
-                            .then(lopHoc => {
-                              res.json({ 'success': true, lopHoc }).status(200);
-                            })
-                            .catch(e => noticeCrash(res));
-                        }
-                      })
-                      .catch(e => noticeCrash(res));
-                  })
-              }
-            })
-            .catch(e => noticeCrash(res));
-        } else res.json({ 'success': true, 'msg': 'Bạn đã tham gia lớp' }).status(200);
-      } else return res.status(403).json({ 'success': false, 'msg': 'Không có mã code này' });
-    })
-    .catch(e => console.log(e));
 
+  try {
+    const { code } = req.body;
+    const { email } = req.user;
+    const maCode = await Invite.findOne({ code }).and({ kich_hoat: false}).and({ email });
+    
+    if (!maCode) {
+      return res.status(403).json({ 'success': false, 'msg': 'Mã code không tồn tại hoặc đã được sử dụng' });
+    }
+    const updateTrangThaiCode = await Invite.updateOne({ code }, { $set: {kich_hoat: Boolean(true)}});
+
+    if (updateTrangThaiCode) {
+
+      const sinhVien = await SinhVien.findOne({ email });
+      if (sinhVien) {
+
+        const idLopHoc = mongoose.Types.ObjectId(maCode.lop_hoc_id);
+        const idSinhVien = mongoose.Types.ObjectId(sinhVien._id);
+
+        const updateLopHocSV = await SinhVien.findByIdAndUpdate({_id: idSinhVien}, {$push: { ds_lop_hoc: idLopHoc}});
+        
+        if (updateLopHocSV) {
+          const updateDSLopHoc = await LopHoc.findByIdAndUpdate({_id: idLopHoc }, { $push: { ds_sinh_vien: idSinhVien}});
+          if (updateDSLopHoc) {
+            return res.json({ 'success': true, "lop_hoc": updateDSLopHoc, 'msg': "Tham gia lớp học thành công" }).status(200);
+          }
+        }
+
+      }
+
+    }
+
+  } catch {
+    noticeCrash(res);
+  }
 
 }
 
