@@ -11,12 +11,22 @@ const lopHocSchema = new Schema({
 },
     {
         toObject: {
-            virtuals: true
-        },
-        toJson: {
-            virtuals: true
-        },
-        timestamps: true,
+            virtual: true,
+            getters: true,
+          },
+          toJSON: {
+            virtual: true,
+            getters: true,
+          },
+          timestamps: true,
     });
+
+lopHocSchema.virtual("tieu_de_format").get(function() {
+    if (this.tieu_de.length <= 15) {
+        return this.tieu_de;
+    }
+    return this.tieu_de.slice(0, 15) + "...";
+})
+
 
 module.exports = mongoose.model("LopHoc", lopHocSchema, "lop_hoc");

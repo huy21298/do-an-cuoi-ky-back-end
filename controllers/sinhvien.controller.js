@@ -150,7 +150,7 @@ const quenMatKhau = (req, res) => {
                 QuenMatKhau.create({ email: req.body.email, code, expire })
                     .then(quenMatKhau => {
                         if (quenMatKhau) {
-                            sendMail(req.body.email, HTMLmail(code,email));
+                            sendMail(req.body.email, HTMLmail(code, email));
                             return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" }).status(200);
                         }
                     })
@@ -173,11 +173,11 @@ const doiMatKhau = async (req, res) => {
     try {
         const { code, email } = req.params;
         const { mat_khau } = req.body;
-        const user = await QuenMatKhau.findOne({code});
+        const user = await QuenMatKhau.findOne({ code });
         if (!user) {
-           return res.status(403).json({ 'success': false, 'msg': 'Mã xác nhận không hợp lệ' });
+            return res.status(403).json({ 'success': false, 'msg': 'Mã xác nhận không hợp lệ' });
         }
-        
+
         if (email !== user.email) {
             return res.status(403).json({ 'success': false, 'msg': 'Email không tồn tại' });
         }
@@ -188,9 +188,9 @@ const doiMatKhau = async (req, res) => {
             res.status(403).json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
         }
         const newPassword = await bcrypt.hash(mat_khau, 10);
-        const ketQuaCapNhat = await SinhVien.updateOne({ email }, { $set: { mat_khau: newPassword}});
+        const ketQuaCapNhat = await SinhVien.updateOne({ email }, { $set: { mat_khau: newPassword } });
         if (ketQuaCapNhat) {
-            const ketQuaXoaToken = await QuenMatKhau.updateMany({ email: req.body.email}, {$set: { expire:-(user.expire)}});
+            const ketQuaXoaToken = await QuenMatKhau.updateMany({ email: req.body.email }, { $set: { expire: -(user.expire) } });
             if (ketQuaXoaToken) {
                 return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" });
             }
