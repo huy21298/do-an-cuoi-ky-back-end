@@ -15,7 +15,7 @@ const loadLopHocThamGia = (req, res) => {
   const _id = req.user._id;
   console.log(_id);
   SinhVien.findById({ _id }).select("ds_lop_hoc ho ten") //load id từ sinh viên xem đc sinh viên đó tham gia lớp học nào
-    .populate({ path: "ds_lop_hoc", select: "tieu_de nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten" } })
+    .populate({ path: "ds_lop_hoc", select: "tieu_de tieu_de_format nguoi_tao_id", populate: { path: "nguoi_tao_id", select: "ho ten hoten anh_dai_dien" } })
     .populate({ path: "ds_cau_hoi.cau_hoi_id" })
     .then(lopHoc => {
       const data = {
@@ -68,7 +68,7 @@ const thamGiaLopHoc = async (req, res) => {
   try {
     const { code } = req.body;
     const { email } = req.user;
-    const maCode = await Invite.findOne({ code }).and({ kich_hoat: false}).and({ email });
+    const maCode = await Invite.findOne({ code }).and({kich_hoat: false}).and({email});
     
     if (!maCode) {
       return res.status(403).json({ 'success': false, 'msg': 'Mã code không tồn tại hoặc đã được sử dụng' });
@@ -84,11 +84,12 @@ const thamGiaLopHoc = async (req, res) => {
         const idSinhVien = mongoose.Types.ObjectId(sinhVien._id);
 
         const updateLopHocSV = await SinhVien.findByIdAndUpdate({_id: idSinhVien}, {$push: { ds_lop_hoc: idLopHoc}});
+        const lopHocDaThamGia = await LopHoc.findById(idLopHoc).select("tieu_de tieu_de_format").populate({ path: "nguoi_tao_id", select: "ho ten hoten anh_dai_dien"});
         
         if (updateLopHocSV) {
           const updateDSLopHoc = await LopHoc.findByIdAndUpdate({_id: idLopHoc }, { $push: { ds_sinh_vien: idSinhVien}});
           if (updateDSLopHoc) {
-            return res.json({ 'success': true, "lop_hoc": updateDSLopHoc, 'msg': "Tham gia lớp học thành công" }).status(200);
+            return res.json({ 'success': true, "lop_hoc": lopHocDaThamGia, 'msg': "Tham gia lớp học thành công" }).status(200);
           }
         }
 
