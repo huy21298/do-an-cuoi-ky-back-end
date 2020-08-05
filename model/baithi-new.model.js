@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const moment = require("moment");
 const Schema = mongoose.Schema;
 
 
@@ -12,7 +12,12 @@ const baiThi1Schema = new Schema(
     tieu_de: String,
     nguoi_tao_id: {type: Schema.Types.ObjectId, ref:'NguoiDung'},
     lop_hoc_id: {type: Schema.Types.ObjectId, ref: 'LopHoc'},
-    ngay_thi: {type: Date, required: true},
+    ngay_thi: Date,
+    // ngay_thi: {
+    //   type: Date,
+    //   required: true,
+    //   get: v => moment(v).format("DD/MM/yyyy") + ""
+    // },
     thoi_gian_thi: {type: Number, required: true},
     trang_thai: {type: Boolean, default: true},
     ds_sinh_vien: [{type: Schema.Types.ObjectId, ref: 'SinhVien'}],
@@ -24,5 +29,7 @@ const baiThi1Schema = new Schema(
     toJSON: { virtuals: true, getters: true },
   }
 );
+
+module.exports = mongoose.model("BaiThi", baiThi1Schema, "bai_thi");
 
 module.exports = mongoose.model("BaiThi", baiThi1Schema, "bai_thi");

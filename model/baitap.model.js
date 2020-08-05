@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const Schema = mongoose.Schema;
 
@@ -7,7 +8,11 @@ const baiTapSchema = new Schema({
   noi_dung: String,
   nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
   lop_hoc_id : { type: Schema.Types.ObjectId, ref: "LopHoc" },
-  han_nop_bai: Date,
+  han_nop_bai: {
+    type: Date,
+      required: true,
+      get: v => moment(v).format("DD/MM/yyyy") + ""
+  },
   tep_tin : String,
   trang_thai: {
     type: Boolean,

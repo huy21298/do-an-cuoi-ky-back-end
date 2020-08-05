@@ -26,19 +26,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
 
-/** Define middleware cho passport */ 
-// require("./model/passport")(passport);
-// app.use(session({
-//   secret : "secret",
-//   saveUninitialized: true,
-//   resave: true
-// }))
-//app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
   origin: process.env.URL_FRONT_END
 }))
 app.use(passport.initialize()); 
-//app.use(express.static(path.join(__dirname, "public")));
+
 
 require('./authenticate/passport')(passport);
 // app.use(passport.session());
@@ -46,23 +38,11 @@ require('./authenticate/passport')(passport);
 /** Define route */
 app.use("/api/v1/password",passwordRoute);
 app.use("/api/v1/dang-nhap", dangNhapRoute);
-//app.use((req,res,next) => {
-// passport.authenticate("jwt",{session:false},function(req,user,info){
-//   if(err) return next(err);
-//   if(!user) {
-//     return res.json({'msg':"Xác thực thất bại, vui lòng thử lại",'success':false})
-//   };
-//   req.user = user;
-//   next();
-// })(req,res,next)
-// });
-// app.use(passport.authenticate("jwt", { session: false }));
+
+app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/lop-hoc", lopHocRoute); // localhost/api/v1/lop-Hoc
 app.use("/api/v1/sinh-vien", sinhVienRoute); //localhost/api/v1/thong-tin-sinh-vien
-// app.use("/api/v1/login",validate.validateLogin(),loGinRoute);
-// app.use((req,res,next)=>{
-//   res.status(404).json({success : false , msg:'Đường dẫn không chính xác'})
-// })
+
 module.exports = app;

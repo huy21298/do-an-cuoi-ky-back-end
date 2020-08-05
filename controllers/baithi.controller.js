@@ -9,12 +9,14 @@ const { noticeCrash } = require("./notice-messages");
 
 const loadBaiThi = (req, res) => {
     const _id = req.params.id;
+    console.log(_id)
     BaiThi.findById({ _id })
         .populate({ path: "nguoi_tao_id", select: "ho ten " })
         .populate({ path: "lop_hoc_id", select: "tieu_de" })
-        .populate({ path: "ds_cau_hoi.cau_hoi_id", select: "lua_chon.label lua_chon.value , noi_dung" })
+        //.populate({ path: "ds_cau_hoi.cau_hoi_id", select: "lua_chon.label lua_chon.value , noi_dung" })
         .then(baiThi => {
             if (baiThi) {
+                console.log(baiThi)
                 var countDownDate = new Date(moment(baiThi.ngay_thi).format('lll')).getTime(); //Jan 5, 2021 15:31:21
                 var now = new Date().getTime(); // thời gian hiện tại
                 var distance = countDownDate - now; // thời gian còn lại

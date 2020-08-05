@@ -19,12 +19,14 @@ const status = require("../constant/status.constant");
 const LoadThongTinSinhVien = (req, res) => {
 
     const { _id } = req.user;
+    //console.log(_id)
     SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien mat_khau sdt")
         .then(thongTinSinhVien => {
+
             const data = {
                 thongTinSinhVien
             }
-            res.status(status.success).json({ 'success': true, data });
+            res.status(status.SUCCESS).json({ 'success': true, data });
 
         })
         .catch(e => noticeCrash(res));
@@ -35,7 +37,6 @@ const suaThongTin = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
-       // res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
         return;
     }
     const nguoi_dung_id = req.user._id;

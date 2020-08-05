@@ -6,7 +6,10 @@ const nguoiDungSchema = new Schema(
   {
     ho: String,
     ten: String,
-    anh_dai_dien: String,
+    anh_dai_dien: {
+      type: String,
+      default: ""
+    },
     email: String,
     ngay_sinh: Date,
     mat_khau: String,
