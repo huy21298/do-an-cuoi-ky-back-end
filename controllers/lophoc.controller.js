@@ -49,24 +49,19 @@ const loadDsSinhVienTrongLop = (req, res) => {
 }
 const loadBaiThiTrongMotLop = (req, res) => {
 
-  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id)
-  BaiThi.find({ lop_hoc_id }).select("tieu_de ngay_thi nguoi_tao_id")
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
+  BaiThi.find({ lop_hoc_id })
+    .select("tieu_de ngay_thi nguoi_tao_id")
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
-    .then(dsBaiThi => {
-<<<<<<< HEAD
-      res.status(200).json({ success: true, bai_thi: dsBaiThi });
-    })
-    .catch(e => noticeCrash(res));
-=======
-      res.status(200).json({success: true, bai_thi: dsBaiThi});
-    })
-    .catch(e => noticeCrash(res));
-}
+    .then((dsBaiThi) => {
+        res.status(200).json({ success: true, bai_thi: dsBaiThi });
+      }) .catch((e) => noticeCrash(res));
+    };
 
 const loadBaiTapTrongMotLop = (req, res) => {
 
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id)
-  BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id")
+  BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id noi_dung")
         .populate({ path: "nguoi_tao_id", select: "ho ten" })
         .then(baiTap => {
           const data = {
@@ -75,23 +70,8 @@ const loadBaiTapTrongMotLop = (req, res) => {
           res.status(200).json({ 'success': true, data });
         })
         .catch(e => noticeCrash(res));;
->>>>>>> 07ef826d2f008bae9e144a7569627a242cabc95b
-}
-
-const loadBaiTapTrongMotLop = (req, res) => {
-
-  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
-  BaiTap.find({ lop_hoc_id })
-    .select("tieu_de han_nop_bai nguoi_tao_id noi_dung")
-    .populate({ path: "nguoi_tao_id", select: "ho ten" })
-    .then((baiTap) => {
-      const data = {
-        bai_tap: baiTap,
-      };
-      res.status(200).json({ success: true, data });
-    })
-    .catch((e) => noticeCrash(res));
-}
+        
+};
 
 const thamGiaLopHoc = async (req, res) => {
   const errors = validationResult(req);
@@ -158,7 +138,6 @@ const thamGiaLopHoc = async (req, res) => {
   }
 }
 
-<<<<<<< HEAD
 
 const hanLamBai = async (req, res) => {
   try {
@@ -206,7 +185,10 @@ const layThongTinLopHoc = async (req, res) => {
   }
 };
 
-module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc, hanLamBai, loadBaiTapTrongMotLop, layThongTinLopHoc }
-=======
-module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc,hanLamBai, loadBaiTapTrongMotLop }
->>>>>>> 07ef826d2f008bae9e144a7569627a242cabc95b
+module.exports = { loadLopHocThamGia,
+  loadDsSinhVienTrongLop, 
+  loadBaiThiTrongMotLop,
+  thamGiaLopHoc,
+  hanLamBai,
+  loadBaiTapTrongMotLop,
+  layThongTinLopHoc }
