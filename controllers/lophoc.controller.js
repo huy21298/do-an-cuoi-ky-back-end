@@ -60,7 +60,7 @@ const loadBaiThiTrongMotLop = (req, res) => {
 const loadBaiTapTrongMotLop = (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
   BaiTap.find({ lop_hoc_id })
-    .select("tieu_de han_nop_bai nguoi_tao_id")
+    .select("tieu_de han_nop_bai nguoi_tao_id noi_dung")
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .then((baiTap) => {
       const data = {
@@ -139,7 +139,6 @@ const thamGiaLopHoc = async (req, res) => {
 const hanLamBai = async (req, res) => {
   try {
     const { id: lop_hoc_id } = req.params;
-    console.log('lop_hoc_id', lop_hoc_id)
     const data = [];
     const countBaiThi = await BaiThi.findOne({ lop_hoc_id }).countDocuments();
     const countBaiTap = await BaiTap.findOne({ lop_hoc_id }).countDocuments();
@@ -169,23 +168,6 @@ const hanLamBai = async (req, res) => {
         .status(status.NOT_MAKE_SENSE)
         .json({ success: true, data, msg: "Không có dữ liệu nào" });
     }
-
-    // const data = {
-    //   bai_thi: baiThi,
-    //   bai_tap: baiTap,
-    // };
-
-    // if (!baiThi) {
-    //   res
-    //     .status(status.NOT_MAKE_SENSE)
-    //     .json({ success: false, message: "Không có bài thi nào" });
-    // } else if (!baiTap) {
-    //   return res
-    //     .status(status.NOT_MAKE_SENSE)
-    //     .json({ success: false, message: "Không có bài tập nào" });
-    // } else {
-    //   return res.status(status.SUCCESS).json(data);
-    // }
   } catch (e) {
     console.log("e", e);
     noticeCrash(res);
