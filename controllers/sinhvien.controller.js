@@ -24,7 +24,7 @@ const LoadThongTinSinhVien = (req, res) => {
             const data = {
                 thongTinSinhVien
             }
-            res.json({ 'success': true, data }).status(200);
+            res.status(status.success).json({ 'success': true, data });
 
         })
         .catch(e => noticeCrash(res));
@@ -57,7 +57,7 @@ const suaThongTin = (req, res) => {
         })
         .then(suaThongTin => {
             if (suaThongTin) {
-                res.json({ 'success': true, 'msg': "Thông tin đã được gửi , chờ phê duyệt" }).status(200);
+                res.json({ 'success': true, 'msg': "Thông tin đã được gửi , chờ phê duyệt" }).status(status.SUCCESS);
                 //console.log(suaThongTin.thong_tin_sua)
             }
 
@@ -84,7 +84,7 @@ const CapNhatAvatar = (req, res) => {
                     .then(aVaTar => {
                         if (aVaTar) {
                             res
-                                .status(200)
+                                .status(status.SUCCESS)
                                 .json({ 'success': true, 'msg': 'Cập nhật avatar thàng công', 'fileNameInServer': orgName });
                         }
                     })
@@ -154,7 +154,7 @@ const quenMatKhau = (req, res) => {
                     .then(quenMatKhau => {
                         if (quenMatKhau) {
                             sendMail(req.body.email, HTMLmail(code, email));
-                            return res.json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" }).status(200);
+                            return res.status(status.SUCCESS).json({ 'success': true, 'msg': "Đã gửi mail... vui lòng kiểm tra mail của bạn !" });
                         }
                     })
                     .catch(e => noticeCrash(res));
@@ -176,7 +176,7 @@ const doiMatKhau = async (req, res) => {
     try {
         const { code, email } = req.params;
         const { mat_khau } = req.body;
-        console.log(req.params);
+       // console.log(req.params);
         const user = await QuenMatKhau.findOne({ code });
         console.log(user)
         if (!user) {
@@ -248,7 +248,7 @@ const updateMatKhau = (req, res) => {
                             SinhVien.updateOne({ _id }, { $set: { mat_khau: kq } })
                                 .then(up => {
                                     if (up) {
-                                        res.json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" }).status(200);
+                                        res.status(status.SUCCESS).json({ 'success': true, 'msg': "Đỗi mật khẩu thành công!" });
                                     }
                                 })
                                 .catch(e => noticeCrash(res));

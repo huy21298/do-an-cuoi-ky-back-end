@@ -9,8 +9,9 @@ const BaiThi = require("../model/baithi-new.model");
 const Invite = require("../model/invite.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
-const status = require("../constant/status.constant");
 const { validationResult } = require('express-validator');
+const status = require("../constant/status.constant");
+
 
 const loadLopHocThamGia = (req, res) => {
   const _id = req.user._id;
@@ -22,7 +23,7 @@ const loadLopHocThamGia = (req, res) => {
       const data = {
         lopHoc
       }
-      res.status(status.SUCCESS).json({ 'success': true, data });
+      res.json({ 'success': true, data }).status(200);
     })
     .catch(e => noticeCrash(res));
 }
@@ -35,7 +36,7 @@ const loadDsSinhVienTrongLop = (req, res) => {
       const data = {
         danhSach
       }
-      res.status(status.SUCCESS).json({ 'success': true, data });
+      res.json({ 'success': true, data }).status(200);
     })
     .catch(e => noticeCrash(res));
 
@@ -52,7 +53,7 @@ const loadBaiThiTrongMotLop = (req, res) => {
           const data = {
             dsBaiThi, baiTap
           }
-          res.status(status.SUCCESS).json({ 'success': true, data });
+          res.json({ 'success': true, data }).status(200);
         })
         .catch(e => noticeCrash(res));
     })
@@ -61,20 +62,19 @@ const loadBaiThiTrongMotLop = (req, res) => {
 
 const thamGiaLopHoc = async (req, res) => {
   const errors = validationResult(req);
-  console.log('errors', errors)
   if (!errors.isEmpty()) {
-    res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
+    res.status(403).json({ 'success': false, errors: errors.array() });
     return;
   }
   try {
     const { code } = req.body;
     const { email } = req.user;
-    const maCode = await Invite.findOne({ code }).and({kich_hoat: false}).and({email});
-    
+    const maCode = await Invite.findOne({ code }).and({ kich_hoat: false }).and({ email });
+
     if (!maCode) {
-      return res.status(status.INVALID_FIELD).json({ 'success': false, 'msg': 'Mã code không tồn tại hoặc đã được sử dụng' });
+      return res.status(403).json({ 'success': false, errors: [{msg: "mã code không tồn tại hoặc đã được sữ dụng", param: "code"}] });
     }
-    const updateTrangThaiCode = await Invite.updateOne({ code }, { $set: {kich_hoat: Boolean(true)}});
+    const updateTrangThaiCode = await Invite.updateOne({ code }, { $set: { kich_hoat: Boolean(true) } });
 
     if (updateTrangThaiCode) {
 
@@ -84,11 +84,11 @@ const thamGiaLopHoc = async (req, res) => {
         const idLopHoc = mongoose.Types.ObjectId(maCode.lop_hoc_id);
         const idSinhVien = mongoose.Types.ObjectId(sinhVien._id);
 
-        const updateLopHocSV = await SinhVien.findByIdAndUpdate({_id: idSinhVien}, {$push: { ds_lop_hoc: idLopHoc}});
-        const lopHocDaThamGia = await LopHoc.findById(idLopHoc).select("tieu_de tieu_de_format").populate({ path: "nguoi_tao_id", select: "ho ten hoten anh_dai_dien"});
-        
+        const updateLopHocSV = await SinhVien.findByIdAndUpdate({ _id: idSinhVien }, { $push: { ds_lop_hoc: idLopHoc } });
+        const lopHocDaThamGia = await LopHoc.findById(idLopHoc).select("tieu_de tieu_de_format").populate({ path: "nguoi_tao_id", select: "ho ten hoten anh_dai_dien" });
+
         if (updateLopHocSV) {
-          const updateDSLopHoc = await LopHoc.findByIdAndUpdate({_id: idLopHoc }, { $push: { ds_sinh_vien: idSinhVien}});
+          const updateDSLopHoc = await LopHoc.findByIdAndUpdate({ _id: idLopHoc }, { $push: { ds_sinh_vien: idSinhVien } });
           if (updateDSLopHoc) {
             return res.status(status.SUCCESS).json({ 'success': true, "lop_hoc": lopHocDaThamGia, 'msg': "Tham gia lớp học thành công" });
           }
@@ -102,6 +102,21 @@ const thamGiaLopHoc = async (req, res) => {
     noticeCrash(res);
   }
 }
+const hanLamBai = (req, res) => {
+  console.log(Date());
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id)
+  BaiThi.find({ lop_hoc_id }).select("tieu_de ngay_thi").sort({ngay_thi:-1 > Date()}).limit(1)
+    .then(dsBaiThi => {
+      BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai").sort({han_nop_bai:-1}).limit(1)
+        .then(baiTap => {
+          const data = {
+            dsBaiThi, baiTap
+          }
+          res.json({ 'success': true, data }).status(200);
+        })
+        .catch(e => noticeCrash(res));
+    })
+    .catch(e => noticeCrash(res));
+}
 
-
-module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc }
+module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc,hanLamBai }
