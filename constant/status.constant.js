@@ -1,0 +1,8 @@
+const SUCCESS = 200;
+
+const INVALID_FIELD = 403;
+const NOT_FOUND = 404;
+
+const SERVER_ERROR = 500;
+
+module.exports = {SUCCESS, INVALID_FIELD, NOT_FOUND, SERVER_ERROR }

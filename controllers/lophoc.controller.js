@@ -9,6 +9,7 @@ const BaiThi = require("../model/baithi-new.model");
 const Invite = require("../model/invite.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
+const status = require("../constant/status.constant");
 const { validationResult } = require('express-validator');
 
 const loadLopHocThamGia = (req, res) => {
@@ -21,7 +22,7 @@ const loadLopHocThamGia = (req, res) => {
       const data = {
         lopHoc
       }
-      res.json({ 'success': true, data }).status(200);
+      res.status(status.SUCCESS).json({ 'success': true, data });
     })
     .catch(e => noticeCrash(res));
 }
@@ -34,7 +35,7 @@ const loadDsSinhVienTrongLop = (req, res) => {
       const data = {
         danhSach
       }
-      res.json({ 'success': true, data }).status(200);
+      res.status(status.SUCCESS).json({ 'success': true, data });
     })
     .catch(e => noticeCrash(res));
 
@@ -51,7 +52,7 @@ const loadBaiThiTrongMotLop = (req, res) => {
           const data = {
             dsBaiThi, baiTap
           }
-          res.json({ 'success': true, data }).status(200);
+          res.status(status.SUCCESS).json({ 'success': true, data });
         })
         .catch(e => noticeCrash(res));
     })
@@ -60,8 +61,9 @@ const loadBaiThiTrongMotLop = (req, res) => {
 
 const thamGiaLopHoc = async (req, res) => {
   const errors = validationResult(req);
+  console.log('errors', errors)
   if (!errors.isEmpty()) {
-    res.status(403).json({ 'success': false, errors: errors.array() });
+    res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
     return;
   }
   try {
@@ -70,7 +72,7 @@ const thamGiaLopHoc = async (req, res) => {
     const maCode = await Invite.findOne({ code }).and({kich_hoat: false}).and({email});
     
     if (!maCode) {
-      return res.status(403).json({ 'success': false, 'msg': 'Mã code không tồn tại hoặc đã được sử dụng' });
+      return res.status(status.INVALID_FIELD).json({ 'success': false, 'msg': 'Mã code không tồn tại hoặc đã được sử dụng' });
     }
     const updateTrangThaiCode = await Invite.updateOne({ code }, { $set: {kich_hoat: Boolean(true)}});
 
@@ -88,7 +90,7 @@ const thamGiaLopHoc = async (req, res) => {
         if (updateLopHocSV) {
           const updateDSLopHoc = await LopHoc.findByIdAndUpdate({_id: idLopHoc }, { $push: { ds_sinh_vien: idSinhVien}});
           if (updateDSLopHoc) {
-            return res.json({ 'success': true, "lop_hoc": lopHocDaThamGia, 'msg': "Tham gia lớp học thành công" }).status(200);
+            return res.status(status.SUCCESS).json({ 'success': true, "lop_hoc": lopHocDaThamGia, 'msg': "Tham gia lớp học thành công" });
           }
         }
 

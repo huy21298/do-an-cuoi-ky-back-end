@@ -1,13 +1,12 @@
 /** Import third library */
 const mongoose = require("mongoose");
+const fs = require("fs");
 /** Import model */
-const NguoiDung = require("../model/nguoidung.model");
-const LopHoc = require("../model/lophoc.model");
-const CauHoi = require("../model/cauhoi.model");
 const BaiTap = require("../model/baitap.model");
 const SinhVien = require("../model/sinhvien.model");
 const NopBaiTap = require("../model/nopbaitap.model");
-const fs = require("fs");
+
+const status = require("../constant/status.constant");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
 const loadbaiTap = (req, res) => {
@@ -17,7 +16,7 @@ const loadbaiTap = (req, res) => {
         .populate({ path: "nguoi_tao_id", select: "ho ten" })
         .populate({ path: "lop_hoc_id", select: "tieu_de" })
         .then(baiTap => {
-            res.json({ 'success': true, baiTap }).status(200);
+            res.status(status.SUCCESS).json({ 'success': true, bai_tap: baiTap });
         })
         .catch(e => noticeCrash(res));
 }
@@ -54,7 +53,7 @@ const nopbaiTap = (req, res) => {
                             })
                                 .then(baiNop => {
                                     if (baiNop) {
-                                        res.json({ 'success': true, 'msg': 'Nộp bài thành công', 'fileNameInServer': orgName }).status(201);
+                                        res.status(status.SUCCESS).json({ 'success': true, 'msg': 'Nộp bài thành công', 'fileNameInServer': orgName });
                                     }
 
                                 })
@@ -70,7 +69,7 @@ const huyUpLoad = (req, res) => {
     NopBaiTap.deleteOne({ _id })
         .then(huyfile => {
             if (huyfile) {
-                res.json({ 'success': true, 'msg': 'Hủy File thành công' });
+                res.status(status.SUCCESS).json({ 'success': true, 'msg': 'Hủy File thành công' });
             }
         })
         .catch(e => noticeCrash(res));

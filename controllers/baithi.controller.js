@@ -1,18 +1,11 @@
 /** Import third library */
 const mongoose = require("mongoose");
 /** Import model */
-const NguoiDung = require("../model/nguoidung.model");
-const LopHoc = require("../model/lophoc.model");
-const ChiTietBaiThi = require("../model/chitietbaithi.model");
-const CauHoi = require("../model/cauhoi.model");
-const TracNghiem = require("../model/cauhoitracnghiem.model");
-const TuLuan = require("../model/cauhoituluan.model");
 const BaiThi = require("../model/baithi-new.model");
-const BaiThiGoc = require("../model/baithigoc.model");
 const moment = require('moment');
 /** Import message notice function*/
+const status = require("../constant/status.constant");
 const { noticeCrash } = require("./notice-messages");
-const { populate } = require("../model/nguoidung.model");
 
 const loadBaiThi = (req, res) => {
     const _id = req.params.id;
@@ -40,7 +33,7 @@ const loadBaiThi = (req, res) => {
                     res.json({ 'success': true, endTime }).status(200);
                 }
                 else if (countDownDate - now === 0 || now < countDownDate + 900000) { // nếu time hiện tại < time thi +15p 
-                    res.json({ 'success': true, baiThi }).status(200);
+                    res.status(status.SUCCESS).json({ 'success': true, baiThi });
                 }
             }
         })
