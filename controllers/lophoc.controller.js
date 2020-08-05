@@ -47,17 +47,23 @@ const loadBaiThiTrongMotLop = (req, res) => {
   BaiThi.find({ lop_hoc_id }).select("tieu_de ngay_thi nguoi_tao_id")
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .then(dsBaiThi => {
-      BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id")
+      res.status(200).json({success: true, bai_thi: dsBaiThi});
+    })
+    .catch(e => noticeCrash(res));
+}
+
+const loadBaiTapTrongMotLop = (req, res) => {
+
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id)
+  BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id")
         .populate({ path: "nguoi_tao_id", select: "ho ten" })
         .then(baiTap => {
           const data = {
-            dsBaiThi, baiTap
+            bai_tap: baiTap
           }
-          res.json({ 'success': true, data }).status(200);
+          res.status(200).json({ 'success': true, data });
         })
-        .catch(e => noticeCrash(res));
-    })
-    .catch(e => noticeCrash(res));
+        .catch(e => noticeCrash(res));;
 }
 
 const thamGiaLopHoc = async (req, res) => {
@@ -119,4 +125,4 @@ const hanLamBai = (req, res) => {
     .catch(e => noticeCrash(res));
 }
 
-module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc,hanLamBai }
+module.exports = { loadLopHocThamGia, loadDsSinhVienTrongLop, loadBaiThiTrongMotLop, thamGiaLopHoc,hanLamBai, loadBaiTapTrongMotLop }
