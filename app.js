@@ -56,7 +56,7 @@ app.use("/api/v1/dang-nhap", dangNhapRoute);
 //   next();
 // })(req,res,next)
 // });
-// app.use(passport.authenticate("jwt", { session: false }));
+app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/lop-hoc", lopHocRoute); // localhost/api/v1/lop-Hoc
