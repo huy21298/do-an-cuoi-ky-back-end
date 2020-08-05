@@ -13,6 +13,8 @@ const QuenMatKhau = require("../model/quenmatkhau.model");
 const { noticeCrash } = require("./notice-messages");
 const { validationResult } = require('express-validator');
 const { compareSync } = require("bcrypt");
+const status = require("../constant/status.constant");
+
 
 const LoadThongTinSinhVien = (req, res) => {
 
@@ -32,7 +34,8 @@ const suaThongTin = (req, res) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(403).json({ 'success': false, errors: errors.array() });
+        res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
+       // res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
         return;
     }
     const nguoi_dung_id = req.user._id;
@@ -157,7 +160,7 @@ const quenMatKhau = (req, res) => {
                     .catch(e => noticeCrash(res));
                 //res.json({ 'success': true, token, 'now':timenow, 'token':timetoken,expire})
             }
-            else return res.status(403).json({ 'success': false, "msg": 'Email không tồn tại' })
+            else return res.status(status.INVALID_FIELD).json({ 'success': false, errors: [{msg: "Email không tồn tại", param: "email"}]})
         })
         .catch(e => noticeCrash(res));
 }
@@ -167,25 +170,26 @@ const hashPassWord = async (mat_khau) => {
 const doiMatKhau = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(403).json({ 'success': false, errors: errors.array() });
+        res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
         return;
     }
     try {
         const { code, email } = req.params;
         const { mat_khau } = req.body;
+        console.log(req.params);
         const user = await QuenMatKhau.findOne({ code });
+        console.log(user)
         if (!user) {
-            return res.status(403).json({ 'success': false, 'msg': 'Mã xác nhận không hợp lệ' });
+            return res.status(status.INVALID_FIELD).json({ 'success': false, errors: [{msg: "Mã xác nhận không hợp lệ", param: "code"}]});
         }
-
         if (email !== user.email) {
-            return res.status(403).json({ 'success': false, 'msg': 'Email không tồn tại' });
+            return res.status(status.INVALID_FIELD).json({ 'success': false, errors: [{msg: "Email không tồn tại", param: "email"}] });
         }
         const timenow = new Date().getTime(); // thời gian hiện tại
         const timeUser = user.expire; // thời gian sử dụng của code
         const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
         if (timePass <= 0) {
-            res.status(403).json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" });
+            res.status(status.INVALID_FIELD).json({ 'success': false, errors: [{msg: "Mã code hết hạn vui lòng thử lại", param: "code"}] });
         }
         const newPassword = await bcrypt.hash(mat_khau, 10);
         const ketQuaCapNhat = await SinhVien.updateOne({ email }, { $set: { mat_khau: newPassword } });
@@ -198,38 +202,6 @@ const doiMatKhau = async (req, res) => {
     } catch {
         noticeCrash(res);
     }
-    // QuenMatKhau.findOne({ code: req.params.id }) // tìm mail sinh viên có trong bảng quên mk
-    //     .then(user => {
-    //         if (!user) {
-    //             res.json({ 'success': false, 'msg': 'Đường dẫn sai' });
-    //         }
-    //         else if (user.email === req.body.email) {
-    //             const timenow = new Date().getTime(); // thời gian hiện tại
-    //             const timeUser = user.expire; // thời gian sử dụng của code
-    //             const timePass = timeUser - timenow; // thời gian còn lại để sử dụng
-    //             if (timePass > 0) {
-    //                 hashPassWord(req.body.mat_khau) // mã hóa pass
-    //                     .then(kq => {
-    //                         SinhVien.updateOne({ email: req.body.email }, { $set: { mat_khau: kq } })// update lại password cho sinh viên
-    //                             .then(pass => {
-    //                                 if (pass) {
-    //                                     QuenMatKhau.updateMany({ email: req.body.email }, { $set: { expire: -(user.expire) } }) // sau khi update xóa bảng quên mật khẩu
-    //                                         .then(kq => {
-    //                                             if (kq) {
-    //                                                 return res.json({ 'success': true, 'msg': "Mật Khẩu đỗi thành công" }).status(200);
-    //                                             }
-    //                                         })
-    //                                         .catch(e => noticeCrash(res));
-    //                                 }
-    //                             })
-    //                             .catch(e => noticeCrash(res));
-    //                     })
-    //                     .catch(e => noticeCrash(res));
-    //             }
-    //             else res.json({ 'success': false, 'msg': "Mã code hết hạn vui lòng gửi lại" }).status(403);
-    //         } else res.json({ 'success': false, 'msg': 'Sai mail' }).status(403);
-    //     })
-    //     .catch(e => noticeCrash(res));
 }
 const lamMoiToken = (req, res) => {
     code = makeid();
@@ -248,11 +220,11 @@ const lamMoiToken = (req, res) => {
 const updateMatKhau = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        res.status(403).json({ 'success': false, errors: errors.array() });
+        res.status(status.INVALID_FIELD).json({ 'success': false, errors: errors.array() });
         return;
     }
     const { _id } = req.user;
-    console.log(req.user);
+    //console.log(_id);
     const { mat_khau1, mat_khau2 } = req.body;
     SinhVien.findOne({ _id })
         .then(sv => {
@@ -288,6 +260,4 @@ const updateMatKhau = (req, res) => {
                 .catch(e => noticeCrash(res));
         }).catch(e => noticeCrash(res));
 }
-
-
 module.exports = { suaThongTin, CapNhatAvatar, LoadThongTinSinhVien, quenMatKhau, doiMatKhau, lamMoiToken, updateMatKhau }
