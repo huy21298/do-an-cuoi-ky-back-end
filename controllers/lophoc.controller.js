@@ -75,7 +75,7 @@ const loadBaiTapTrongMotLop = (req, res) => {
 const thamGiaLopHoc = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res.status(403).json({ success: false, errors: errors.array() });
+    res.status(status.INVALID_FIELD).json({ success: false, errors: errors.array() });
     return;
   }
   try {
@@ -86,7 +86,7 @@ const thamGiaLopHoc = async (req, res) => {
       .and({ email });
 
     if (!maCode) {
-      return res.status(403).json({
+      return res.status(status.INVALID_FIELD).json({
         success: false,
         errors: [
           {
