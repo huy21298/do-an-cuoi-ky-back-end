@@ -21,7 +21,11 @@ const baiTapSchema = new Schema({
       return v === true ? "Phát hành" : "Bản nháp";
     },
   },
-  ds_sinh_vien_tham_gia : Array
+  ds_sinh_vien_tham_gia : Array,
+  createdAt: {
+    type: Date,
+    get: v => moment(v).format("DD/MM/yyyy") + ""
+  }
 },
 {
     timestamps: true,

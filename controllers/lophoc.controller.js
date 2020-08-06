@@ -35,12 +35,12 @@ const loadLopHocThamGia = (req, res) => {
 const loadDsSinhVienTrongLop = (req, res) => {
   const _id = req.params.id;
   LopHoc.findById({ _id })
-    .select("tieu_de ds_sinh_vien nguoi_tao_id")
-    .populate({ path: "nguoi_tao_id", select: "ho ten hoten" })
-    .populate({ path: "ds_sinh_vien", select: "ho ten hoten" })
+    .select("ds_sinh_vien")
+    .populate({ path: "ds_sinh_vien", select: "ho ten hoten anh_dai_dien" })
     .then((danhSach) => {
+      console.log('danhSach1', danhSach)
       const data = {
-        danhSach
+        ds_sinh_vien: danhSach.ds_sinh_vien
       };
       res.json({ success: true, data }).status(200);
     })
@@ -61,7 +61,7 @@ const loadBaiThiTrongMotLop = (req, res) => {
 const loadBaiTapTrongMotLop = (req, res) => {
 
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id)
-  BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id noi_dung")
+  BaiTap.find({ lop_hoc_id }).select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt noi_dung")
         .populate({ path: "nguoi_tao_id", select: "ho ten" })
         .then(baiTap => {
           const data = {
