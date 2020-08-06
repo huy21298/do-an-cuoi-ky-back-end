@@ -16,7 +16,7 @@ const loadBaiThi = (req, res) => {
         //.populate({ path: "ds_cau_hoi.cau_hoi_id", select: "lua_chon.label lua_chon.value , noi_dung" })
         .then(baiThi => {
             if (baiThi) {
-                console.log(baiThi)
+               // console.log(baiThi)
                 var countDownDate = new Date(moment(baiThi.ngay_thi).format('lll')).getTime(); //Jan 5, 2021 15:31:21
                 var now = new Date().getTime(); // thời gian hiện tại
                 var distance = countDownDate - now; // thời gian còn lại
