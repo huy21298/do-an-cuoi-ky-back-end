@@ -19,7 +19,6 @@ const status = require("../constant/status.constant");
 const LoadThongTinSinhVien = (req, res) => {
 
     const { _id } = req.user;
-    //console.log(_id)
     SinhVien.findById({ _id }).select("ma_sv ho ten email ngay_sinh anh_dai_dien mat_khau sdt")
         .then(thongTinSinhVien => {
 

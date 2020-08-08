@@ -35,7 +35,6 @@ const nopbaiTap = (req, res) => {
                             const bai_tap_id = baiTap._id;
                             const lop_hoc_id = baiTap.lop_hoc_id;
                             const sinh_vien_id = sinhVien._id;
-                            console.log("id sinh viên",sinhVien._id);
                             const processedFile = req.file || {}; // MULTER xử lý và gắn đối tượng FILE vào req
                             let orgName = processedFile.originalname || ''; // Tên gốc trong máy tính của người upload
                             orgName = orgName.trim().replace(/ /g, "-")
@@ -44,7 +43,6 @@ const nopbaiTap = (req, res) => {
                             const newFullPath = `${fullPathInServ}-${orgName}`;
                             fs.renameSync(fullPathInServ, newFullPath);
                             req.body.upload = orgName;
-                            //console.log(orgName);
                             NopBaiTap.create({
                                 'bai_tap_id': bai_tap_id,
                                 'lop_hoc_id': lop_hoc_id,
