@@ -64,13 +64,15 @@ const loadbaiTap = (req, res) => {
 // }
 
 const nopBaiTap = async (req, res) => {
-  const { lop_hoc_id, bai_tap_id } = req.query;
+  const { lop_hoc_id, bai_tap_id } = req.body;
   const { _id: sinh_vien_id } = req.user;
   try {
     const baiTap = await BaiTap.findOne({ _id: bai_tap_id, lop_hoc_id })
       .where("han_nop_bai")
       .gte(new Date())
-      .where("trang_thai", 1);
+      .where("trang_thai", 1)
+      .where("ds_sinh_vien_da_lam")
+      .nin(sinh_vien_id);
 
     if (!baiTap) {
       return res.status(status.INVALID_FIELD).json({
@@ -96,7 +98,6 @@ const nopBaiTap = async (req, res) => {
         { _id: bai_tap_id },
         { $push: { ds_sinh_vien_da_lam: sinh_vien_id } }
       );
-        console.log('baiTap', baiTap)
       if (baiTap) {
         return res.status(status.SUCCESS).json({
           success: true,
@@ -112,16 +113,27 @@ const nopBaiTap = async (req, res) => {
   }
 };
 
-const huyUpLoad = (req, res) => {
-  const _id = req.params.id;
-  NopBaiTap.deleteOne({ _id })
-    .then((huyfile) => {
-      if (huyfile) {
+const huyBaiTap = (req, res) => {
+  const { bai_tap_id } = req.body;
+  NopBaiTap.findOneAndDelete({ bai_tap_id })
+    .then((huyBaiTap) => {
+        console.log('huyBaiTap', huyBaiTap)
+      if (huyBaiTap) {
         res
           .status(status.SUCCESS)
-          .json({ success: true, msg: "Hủy File thành công" });
+          .json({ success: true, msg: "Hủy bài tập thành công" });
+      } else {
+          res.status(status.INVALID_FIELD).json({
+              success: false,
+              errors: [
+                  {
+                      msg: "Hủy bài tập thất bại",
+                      param: "bai_tap_id"
+                  }
+              ]
+          })
       }
     })
     .catch((e) => noticeCrash(res));
 };
-module.exports = { loadbaiTap, nopBaiTap, huyUpLoad };
+module.exports = { loadbaiTap, nopBaiTap, huyBaiTap };
