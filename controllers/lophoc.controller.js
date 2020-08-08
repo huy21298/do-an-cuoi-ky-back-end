@@ -68,12 +68,17 @@ const loadBaiThiTrongMotLop = async (req, res) => {
 const loadBaiTapTrongMotLop = (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
   BaiTap.find({ lop_hoc_id })
-    .select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt ")
+    .select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt trang_thai")
+    .where("han_nop_bai").gte(new Date())
+    .where("trang_thai", true)
+    .where("ds_sinh_vien_da_lam")
+    .nin(req.user._id)
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .then((baiTap) => {
       const data = {
         bai_tap: baiTap,
       };
+      console.log('baiTap', baiTap)
       res.status(200).json({ success: true, data });
     })
     .catch((e) => noticeCrash(res));
