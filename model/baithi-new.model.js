@@ -28,7 +28,8 @@ const baiThi1Schema = new Schema(
 );
 
 baiThi1Schema.virtual("duoc_phep_thi").get(function() {
-  const ngay_thi = moment(this.ngay_thi)
+  const ngay_thi = moment(this.ngay_thi);
+  console.log('new Date', new Date())
   const thoi_gian_tre = moment(ngay_thi).add("15", "minute");
   const thoi_gian_hien_tai = moment(new Date());
   const duoc_phep_thi = thoi_gian_tre > thoi_gian_hien_tai;

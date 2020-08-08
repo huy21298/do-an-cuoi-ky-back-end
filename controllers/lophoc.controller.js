@@ -7,6 +7,7 @@ const SinhVien = require("../model/sinhvien.model");
 const BaiTap = require("../model/baitap.model");
 const BaiThi = require("../model/baithi-new.model");
 const Invite = require("../model/invite.model");
+const BaiThiSinhVien = require("../model/baithisinhvien.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
 const { validationResult } = require("express-validator");
@@ -69,7 +70,8 @@ const loadBaiTapTrongMotLop = (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
   BaiTap.find({ lop_hoc_id })
     .select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt trang_thai")
-    .where("han_nop_bai").gte(new Date())
+    .where("han_nop_bai")
+    .gte(new Date())
     .where("trang_thai", true)
     .where("ds_sinh_vien_da_lam")
     .nin(req.user._id)
@@ -78,7 +80,7 @@ const loadBaiTapTrongMotLop = (req, res) => {
       const data = {
         bai_tap: baiTap,
       };
-      console.log('baiTap', baiTap)
+      console.log("baiTap", baiTap);
       res.status(200).json({ success: true, data });
     })
     .catch((e) => noticeCrash(res));
@@ -155,18 +157,20 @@ const thamGiaLopHoc = async (req, res) => {
 const hanLamBai = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('id', id)
+    console.log("id", id);
     const data = [];
     const baiThi = await BaiThi.find({ lop_hoc_id: id })
-    .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
-    .where("ds_sinh_vien_da_thi")
-    .nin(req.user._id)
-    .sort({ ngay_thi: 01 > Date()});
+      .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
+      .where("ds_sinh_vien_da_thi")
+      .nin(req.user._id)
+      .sort({ ngay_thi: 01 > Date() });
 
-    console.log('baiThi', baiThi)
+    console.log("baiThi", baiThi);
 
-    const baiThiFilter = baiThi.filter(item => item.duoc_phep_thi === true)
-    const countBaiTap = await BaiTap.findOne({ lop_hoc_id: id }).countDocuments();
+    const baiThiFilter = baiThi.filter((item) => item.duoc_phep_thi === true);
+    const countBaiTap = await BaiTap.findOne({
+      lop_hoc_id: id,
+    }).countDocuments();
 
     if (baiThiFilter.length > 0) {
       data.push(baiThiFilter[0]);
@@ -204,6 +208,40 @@ const layThongTinLopHoc = async (req, res) => {
   }
 };
 
+const loadBaiThiDaHoanThanh = async (req, res) => {
+  const { lop_hoc_id } = req.params;
+  const { _id: sinh_vien_id } = req.user;
+
+  try {
+    const baiThiHoanThanh = await BaiThiSinhVien.find({
+      lop_hoc_id,
+      sinh_vien_id,
+    }).select("-_id bai_thi_id");
+    const idBaiThi = baiThiHoanThanh.map((item) =>
+      mongoose.Types.ObjectId(item.bai_thi_id)
+    );
+    const baiThi = await BaiThi.where("_id")
+      .in(idBaiThi)
+      .populate({
+        path: "nguoi_tao_id",
+        ref: "nguoi_dung",
+        select: "anh_dai_dien ho ten hoten",
+      });
+    if (baiThi) {
+      return res
+        .status(status.SUCCESS)
+        .json({ success: true, bai_thi: baiThi});
+    }
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      errors: [{ param: "bai_thi_id", msg: "Không tồn tại bài thi" }],
+    });
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
+
 module.exports = {
   loadLopHocThamGia,
   loadDsSinhVienTrongLop,
@@ -212,4 +250,5 @@ module.exports = {
   hanLamBai,
   loadBaiTapTrongMotLop,
   layThongTinLopHoc,
+  loadBaiThiDaHoanThanh,
 };
