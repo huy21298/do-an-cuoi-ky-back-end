@@ -28,13 +28,13 @@ const baiThi1Schema = new Schema(
 );
 
 baiThi1Schema.virtual("duoc_phep_thi").get(function () {
-  const ngay_thi = moment(this.ngay_thi)  // vd 8/8/2020 12:05
-  const thoi_gian_tre = moment(ngay_thi).add("15", "minute");  // vd 8/8/2020 12:20
-  const thoi_gian_hien_tai = moment(new Date()); //8/8/2020 12:00 // và 12:25
-  const duoc_phep_thi = thoi_gian_tre > thoi_gian_hien_tai; //12:20 >12:00  được thi ,nếu 12:20 > 12:25 không được thi
+  const ngay_thi = moment(this.ngay_thi)
+  const thoi_gian_tre = moment(ngay_thi).add("15", "minute");
+  const thoi_gian_hien_tai = moment(new Date());
+  const duoc_phep_thi = thoi_gian_tre > thoi_gian_hien_tai;
   return duoc_phep_thi;
-
 });
+
 baiThi1Schema.virtual("ngay_thi_format").get(function () {
   return moment(this.ngay_thi).format("DD/MM HH:mm") + "";
 });

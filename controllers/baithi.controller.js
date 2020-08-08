@@ -12,7 +12,6 @@ const { noticeCrash } = require("./notice-messages");
 
 const loadBaiThi = async (req, res) => {
   let { id } = req.params;
-  //console.log(req.user);
   try {
     const baiThi = await BaiThi.findById(id)
       .populate({ path: "nguoi_tao_id", select: "ho ten " })
@@ -23,8 +22,9 @@ const loadBaiThi = async (req, res) => {
         path: "ds_cau_hoi.cau_hoi_id",
         select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
       });
+      console.log(baiThi);
     if (!loadBaiThi) {
-      return res.status(status.INVALID_FIELD).json({
+      return res.status(status.SUCCESS).json({
         success: false,
         errros: [
           {
@@ -34,27 +34,28 @@ const loadBaiThi = async (req, res) => {
         ],
       });
     }
+
     const ngayHienTai = moment(new Date());
-    const ngayThi = moment(loadBaiThi.ngay_thi);
-    console.log("baiThi.ngay_thi", baiThi.ngay_thi);
+    const ngayThi = moment(baiThi.ngay_thi);
     if (ngayHienTai < ngayThi) {
       const thoiGianConLai = ngayThi - ngayHienTai;
       console.log("thoiGianConLai", thoiGianConLai);
       return res.status(status.SUCCESS).json({
         success: false,
-        message: "Chưa tới thời gian thi",
+        msg: "Chưa tới thời gian thi",
         thoi_gian_con_lai: thoiGianConLai,
         code: "SOON",
       });
     }
+
     if (!baiThi.duoc_phep_thi) {
       return res.status(status.SUCCESS).json({
         success: false,
-        message:
-          "Đã quá thời gian thi, vui lòng liên hệ với giao viên phụ trách",
+        msg: "Đã quá thời gian thi, vui lòng liên hệ với giao viên phụ trách",
         code: "LEFT",
       });
     }
+
     return res.status(status.SUCCESS).json({
       success: true,
       data: {
@@ -69,22 +70,33 @@ const loadBaiThi = async (req, res) => {
 
 const nopBaiThi = async (req, res) => {
   const { bai_thi } = req.body;
+  const { _id } = req.user;
   const data = JSON.parse(bai_thi);
   // console.log('req.body', req.body);
-  //console.log("data", data);
+  console.log("data", data);
   try {
     const ketQua = await BaiThiSinhVien.create(data);
     if (!ketQua) {
       return res.status(status.BAD_REQUEST).json({
         success: false,
-        message:
+        msg:
           "Có lỗi xãy ra trong qua trình gửi bài thi. Nếu vẫn còn bị trường hợp này, vui lòng báo cho giáo viên phụ trách",
       });
     }
     const updateTrangThai = await BaiThi.findOneAndUpdate(
       { _id: data.bai_thi_id },
-      { trang_thai: true }
+      { trang_thai: true, $push: { ds_sinh_vien_da_thi: _id } }
     );
+
+    if (updateTrangThai) {
+
+      return res
+        .status(status.SUCCESS)
+        .json({
+          success: true,
+          msg: "Nộp bài thành công, nhấn xác nhận để quay về trang lớp học",
+        });
+    }
   } catch (e) {
     console.log("e", e);
     noticeCrash(res);

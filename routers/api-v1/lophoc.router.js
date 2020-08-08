@@ -16,7 +16,6 @@ router.get("/", loadLopHocThamGia); //id sinh vien
 router.get("/:id/danh-sach-sinh-vien", loadDsSinhVienTrongLop); //id lớp
 router.get("/:id/bai-thi", loadBaiThiTrongMotLop); //id lớp
 router.get("/:id/bai-tap", loadBaiTapTrongMotLop); //id lớp
-router.post("/tham-gia", validate.validateLopHoc(), thamGiaLopHoc);
 router.get("/:id/han-nop", hanLamBai);
 router.get("/:id/thong-tin-lop-hoc", layThongTinLopHoc);
 router.post("/tham-gia",validate.validateLopHoc(),thamGiaLopHoc)
