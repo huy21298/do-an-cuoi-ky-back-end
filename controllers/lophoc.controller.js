@@ -46,16 +46,21 @@ const loadDsSinhVienTrongLop = (req, res) => {
     .catch(e => noticeCrash(res));
 
 }
-const loadBaiThiTrongMotLop = (req, res) => {
+const loadBaiThiTrongMotLop = async (req, res) => {
 
-  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
-  BaiThi.find({ lop_hoc_id })
-    .select("tieu_de ngay_thi nguoi_tao_id")
-    .populate({ path: "nguoi_tao_id", select: "ho ten" })
-    .then((dsBaiThi) => {
-        res.status(200).json({ success: true, bai_thi: dsBaiThi });
-      }) .catch((e) => noticeCrash(res));
-    };
+  const { id } = req.params;
+  try {
+    const baiThi = await BaiThi.find({ lop_hoc_id: id})
+    .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
+    .populate({ path: "nguoi_tao_id", select: "ho ten" });
+    const baiThiData = baiThi.filter(item => item.duoc_phep_thi === true);
+    res.status(200).json({ success: true, bai_thi: baiThiData });
+    console.log('baiThi', baiThi)
+
+  } catch(e) {
+    noticeCrash(res)
+  }
+};
 
 const loadBaiTapTrongMotLop = (req, res) => {
 

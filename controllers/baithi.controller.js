@@ -4,82 +4,90 @@ const mongoose = require("mongoose");
 const BaiThi = require("../model/baithi-new.model");
 const TracNghiem = require("../model/cauhoitracnghiem.model");
 const TuLuan = require("../model/cauhoituluan.model");
-const moment = require('moment');
+const BaiThiSinhVien = require("../model/baithisinhvien.model");
+const moment = require("moment");
 /** Import message notice function*/
 const status = require("../constant/status.constant");
 const { noticeCrash } = require("./notice-messages");
 
-const loadBaiThi = (req, res) => {
-  const _id = req.params.id;
-  // //console.log(_id);
+const loadBaiThi = async (req, res) => {
+  let { id } = req.params;
+  //console.log(req.user);
+  try {
+    const baiThi = await BaiThi.findById(id)
+      .populate({ path: "nguoi_tao_id", select: "ho ten " })
+      .where("ds_sinh_vien_da_thi")
+      .nin(req.user._id)
+      .populate({ path: "lop_hoc_id", select: "tieu_de" })
+      .populate({
+        path: "ds_cau_hoi.cau_hoi_id",
+        select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
+      });
+    if (!loadBaiThi) {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        errros: [
+          {
+            msg: "Bài thi không tồn tại hoặc đã được hoàn thành",
+            param: id,
+          },
+        ],
+      });
+    }
+    const ngayHienTai = moment(new Date());
+    const ngayThi = moment(loadBaiThi.ngay_thi);
+    console.log("baiThi.ngay_thi", baiThi.ngay_thi);
+    if (ngayHienTai < ngayThi) {
+      const thoiGianConLai = ngayThi - ngayHienTai;
+      console.log("thoiGianConLai", thoiGianConLai);
+      return res.status(status.SUCCESS).json({
+        success: false,
+        message: "Chưa tới thời gian thi",
+        thoi_gian_con_lai: thoiGianConLai,
+        code: "SOON",
+      });
+    }
+    if (!baiThi.duoc_phep_thi) {
+      return res.status(status.SUCCESS).json({
+        success: false,
+        message:
+          "Đã quá thời gian thi, vui lòng liên hệ với giao viên phụ trách",
+        code: "LEFT",
+      });
+    }
+    return res.status(status.SUCCESS).json({
+      success: true,
+      data: {
+        bai_thi: baiThi,
+      },
+    });
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
 
-  BaiThi.findById({ _id })   /** cái này dùng đễ load bài thi thử */
-    .populate({ path: "nguoi_tao_id", select: "ho ten " })
-    .populate({ path: "lop_hoc_id", select: "tieu_de" })
-    .populate({ path: "ds_cau_hoi.cau_hoi_id", select: "lua_chon.label lua_chon.value noi_dung lua_chon.id" })
-    .then((baiThi) => {
-      if (!baiThi) {
-        return res.status(status.INVALID_FIELD).json({
-          success: false,
-          errors: [
-            {
-              msg: "Bài thi không tồn tại",
-              param: "_id",
-            },
-          ],
-        });
-      } else {
-        const data = {
-          baiThi
-        }
-        return res.status(status.SUCCESS).json({ success:true, data: [data] })
-      }
-    })
-    .catch(e => console.log(e));
-
-  // BaiThi.findById({ _id })
-  //   .populate({ path: "nguoi_tao_id", select: "ho ten " })
-  //   .populate({ path: "lop_hoc_id", select: "tieu_de" })
-  //   .populate({ path: "ds_cau_hoi.cau_hoi_id", select: "lua_chon.label lua_chon.value , noi_dung" })
-  //   .then(baiThi => {
-  //     if (baiThi) {
-  //       // console.log(baiThi)
-  //       var countDownDate = new Date(moment(baiThi.ngay_thi, ["DD/MM/yyyy", "LLL"])).getTime(); // tính ra milis
-  //       var now = new Date().getTime(); // thời gian hiện tại
-  //       var distance = countDownDate - now; // thời gian còn lại
-  //       // Time calculations for days, hours, minutes and seconds
-  //       var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  //       var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  //       var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  //       var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  //       //console.log(countDownDate - now)
-  //       if (now > countDownDate + 900000) { // nếu time hiện tại > time thi +15p 
-  //         res.json({ 'success': false, 'msg': 'Đã qua thời gian làm bài' }).status(status.INVALID_FIELD);
-  //       }
-  //       else if (countDownDate - now > 0) {
-  //         endTime = days + "Ngày " + hours + "giờ "
-  //           + minutes + "phút " + seconds + "giây ";
-  //         res.json({ 'success': true, endTime }).status(200);
-  //       }
-  //       else if (countDownDate - now === 0 || now < countDownDate + 900000) { // nếu time hiện tại < time thi +15p 
-
-  //         const data = {
-  //           baiThi
-  //         }
-  //         return res.status(status.SUCCESS).json({ success: true, data: [data] })
-  //       }
-  //     } else {
-  //       return res.status(status.INVALID_FIELD).json({
-  //         success: false,
-  //         errors: [
-  //           {
-  //             msg: "Bài thi không tồn tại",
-  //             param: "id",
-  //           },
-  //         ],
-  //       });
-  //     }
-  //   })
-  //   .catch(e => noticeCrash(res));
-}
-module.exports = { loadBaiThi };
+const nopBaiThi = async (req, res) => {
+  const { bai_thi } = req.body;
+  const data = JSON.parse(bai_thi);
+  // console.log('req.body', req.body);
+  //console.log("data", data);
+  try {
+    const ketQua = await BaiThiSinhVien.create(data);
+    if (!ketQua) {
+      return res.status(status.BAD_REQUEST).json({
+        success: false,
+        message:
+          "Có lỗi xãy ra trong qua trình gửi bài thi. Nếu vẫn còn bị trường hợp này, vui lòng báo cho giáo viên phụ trách",
+      });
+    }
+    const updateTrangThai = await BaiThi.findOneAndUpdate(
+      { _id: data.bai_thi_id },
+      { trang_thai: true }
+    );
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
+module.exports = { loadBaiThi, nopBaiThi };
