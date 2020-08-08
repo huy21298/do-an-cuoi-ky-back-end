@@ -85,14 +85,12 @@ const nopBaiTap = async (req, res) => {
         ],
       });
     }
-
     const nopBaiTap = await NopBaiTap.create({
       bai_tap_id,
       lop_hoc_id,
       sinh_vien_id,
       bai_nop: "",
     });
-
     if (nopBaiTap) {
       const baiTap = await BaiTap.findByIdAndUpdate(
         { _id: bai_tap_id },
@@ -115,23 +113,28 @@ const nopBaiTap = async (req, res) => {
 
 const huyBaiTap = (req, res) => {
   const { bai_tap_id } = req.body;
+  const { _id: sinh_vien_id } = req.user;
   NopBaiTap.findOneAndDelete({ bai_tap_id })
-    .then((huyBaiTap) => {
-        console.log('huyBaiTap', huyBaiTap)
-      if (huyBaiTap) {
-        res
-          .status(status.SUCCESS)
-          .json({ success: true, msg: "Hủy bài tập thành công" });
-      } else {
-          res.status(status.INVALID_FIELD).json({
-              success: false,
-              errors: [
-                  {
-                      msg: "Hủy bài tập thất bại",
-                      param: "bai_tap_id"
-                  }
-              ]
+    .then((deletedata) => {
+      if (deletedata) {
+        BaiTap.findByIdAndUpdate({ _id: bai_tap_id },
+          { $pull: { ds_sinh_vien_da_lam: sinh_vien_id } })
+          .then(() => {
+            res
+              .status(status.SUCCESS)
+              .json({ success: true, msg: "Hủy bài tập thành công" });
           })
+          .catch(e => noticeCrash(res));
+      } else {
+        res.status(status.INVALID_FIELD).json({
+          success: false,
+          errors: [
+            {
+              msg: "Hủy bài tập thất bại",
+              param: "bai_tap_id"
+            }
+          ]
+        })
       }
     })
     .catch((e) => noticeCrash(res));
