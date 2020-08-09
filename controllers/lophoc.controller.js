@@ -7,6 +7,7 @@ const SinhVien = require("../model/sinhvien.model");
 const BaiTap = require("../model/baitap.model");
 const BaiThi = require("../model/baithi-new.model");
 const Invite = require("../model/invite.model");
+const BaiThiSinhVien = require("../model/baithisinhvien.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
 const { validationResult } = require("express-validator");
@@ -51,6 +52,7 @@ const loadBaiThiTrongMotLop = async (req, res) => {
       .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
+      .sort({ngay_thi: 1})
       .populate({ path: "nguoi_tao_id", select: "ho ten" });
     const baiThiData = baiThi.filter((item) => item.duoc_phep_thi === true);
     // const baiThiData = baiThi.filter(item => item.duoc_phep_thi === false);
@@ -69,16 +71,18 @@ const loadBaiTapTrongMotLop = (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
   BaiTap.find({ lop_hoc_id })
     .select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt trang_thai")
-    .where("han_nop_bai").gte(new Date())
+    .where("han_nop_bai")
+    .gte(new Date())
     .where("trang_thai", true)
     .where("ds_sinh_vien_da_lam")
     .nin(req.user._id)
+    .sort({han_nop_bai: 1})
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .then((baiTap) => {
       const data = {
         bai_tap: baiTap,
       };
-      console.log('baiTap', baiTap)
+
       res.status(200).json({ success: true, data });
     })
     .catch((e) => noticeCrash(res));
@@ -155,29 +159,40 @@ const thamGiaLopHoc = async (req, res) => {
 const hanLamBai = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log('id', id)
+    console.log("id", id);
     const data = [];
     const baiThi = await BaiThi.find({ lop_hoc_id: id })
-    .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
-    .where("ds_sinh_vien_da_thi")
-    .nin(req.user._id)
-    .sort({ ngay_thi: 01 > Date()});
+      .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
+      .where("ds_sinh_vien_da_thi")
+      .nin(req.user._id)
+      .sort({ ngay_thi: 1 });
 
-    console.log('baiThi', baiThi)
+    const baiTap = await BaiTap.find({ lop_hoc_id: id })
+      .where("ds_sinh_vien_da_lam")
+      .nin(req.user._id)
+      .where("han_nop_bai")
+      .gte(new Date())
+      .where("trang_thai", true)
+      .sort({han_nop_bai: 1})
 
-    const baiThiFilter = baiThi.filter(item => item.duoc_phep_thi === true)
-    const countBaiTap = await BaiTap.findOne({ lop_hoc_id: id }).countDocuments();
+      console.log('baiTap', baiTap)
+
+    const baiThiFilter = baiThi.filter((item) => item.duoc_phep_thi === true);
 
     if (baiThiFilter.length > 0) {
       data.push(baiThiFilter[0]);
     }
-    if (countBaiTap > 0) {
-      const baiTap = await BaiTap.findOne({ lop_hoc_id: id })
-        .select("tieu_de han_nop_bai")
-        .sort({ han_nop_bai: -1 })
-        .limit(1);
-      data.push(baiTap);
+
+    if (baiTap.length >0) {
+      data.push(baiTap[0]);
     }
+    // if (countBaiTap > 0) {
+    //   const baiTap = await BaiTap.findOne({ lop_hoc_id: id })
+    //     .select("tieu_de han_nop_bai")
+    //     .sort({ han_nop_bai: -1 })
+    //     .limit(1);
+    //   data.push(baiTap);
+    // }
     if (data.length > 0) {
       return res
         .status(status.SUCCESS)
@@ -204,6 +219,60 @@ const layThongTinLopHoc = async (req, res) => {
   }
 };
 
+const loadBaiThiDaHoanThanh = async (req, res) => {
+  const { lop_hoc_id } = req.params;
+  const { _id: sinh_vien_id } = req.user;
+
+  try {
+    const baiThiHoanThanh = await BaiThiSinhVien.find({
+      lop_hoc_id,
+      sinh_vien_id,
+    })
+      .select("-_id bai_thi_id da_cham")
+      .populate({
+        path: "bai_thi_id",
+        ref: "bai_thi",
+        select: "tieu_de ngay_thi ngay_thi_format",
+        populate: {
+          path: "nguoi_tao_id",
+          ref: "nguoi_dung",
+          select: "ho ten hoten",
+        },
+      });
+    if (baiThiHoanThanh) {
+      return res
+        .status(status.SUCCESS)
+        .json({ success: true, bai_thi: baiThiHoanThanh });
+    }
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      errors: [{ param: "bai_thi_id", msg: "Không tồn tại bài thi" }],
+    });
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
+
+loadBaiThiKhongHoanThanh = async (req, res) => {
+  const { lop_hoc_id } = req.params;
+  const { _id: sinh_vien_id } = req.user;
+
+  try {
+    console.log("lop_hoc_id", lop_hoc_id);
+    console.log("sinh_vien_id", sinh_vien_id);
+    const baiThiSV = await BaiThiSinhVien.find({ lop_hoc_id, sinh_vien_id });
+    const baiThi = await BaiThi.find({ lop_hoc_id })
+      .where("ds_sinh_vien_da_thi")
+      .nin(sinh_vien_id);
+    console.log("baiThiSV", baiThiSV);
+    console.log("baiThi", baiThi);
+    res.json({ data: { baiThi, baiThiSV } });
+  } catch (e) {
+    console.log("e", e);
+  }
+};
+
 module.exports = {
   loadLopHocThamGia,
   loadDsSinhVienTrongLop,
@@ -212,4 +281,6 @@ module.exports = {
   hanLamBai,
   loadBaiTapTrongMotLop,
   layThongTinLopHoc,
+  loadBaiThiDaHoanThanh,
+  loadBaiThiKhongHoanThanh,
 };

@@ -8,3 +8,4 @@ router.get("/:id", loadbaiTap);
 router.post("/nop-bai", nopBaiTap);
 router.post("/huy-bai-tap", huyBaiTap)
 module.exports = router;
+

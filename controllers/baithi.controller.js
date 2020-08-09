@@ -14,16 +14,16 @@ const loadBaiThi = async (req, res) => {
   let { id } = req.params;
   try {
     const baiThi = await BaiThi.findById(id)
-      .populate({ path: "nguoi_tao_id", select: "ho ten " })
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
+      .populate({ path: "nguoi_tao_id", select: "ho ten " })
       .populate({ path: "lop_hoc_id", select: "tieu_de" })
       .populate({
         path: "ds_cau_hoi.cau_hoi_id",
         select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
       });
-      console.log(baiThi);
-    if (!loadBaiThi) {
+
+    if (!baiThi) {
       return res.status(status.SUCCESS).json({
         success: false,
         errros: [
@@ -72,8 +72,6 @@ const nopBaiThi = async (req, res) => {
   const { bai_thi } = req.body;
   const { _id } = req.user;
   const data = JSON.parse(bai_thi);
-  // console.log('req.body', req.body);
-  console.log("data", data);
   try {
     const ketQua = await BaiThiSinhVien.create(data);
     if (!ketQua) {
@@ -89,17 +87,38 @@ const nopBaiThi = async (req, res) => {
     );
 
     if (updateTrangThai) {
-
-      return res
-        .status(status.SUCCESS)
-        .json({
-          success: true,
-          msg: "Nộp bài thành công, nhấn xác nhận để quay về trang lớp học",
-        });
+      return res.status(status.SUCCESS).json({
+        success: true,
+        msg: "Nộp bài thành công, nhấn xác nhận để quay về trang lớp học",
+      });
     }
   } catch (e) {
     console.log("e", e);
     noticeCrash(res);
   }
 };
-module.exports = { loadBaiThi, nopBaiThi };
+
+const loadBaiThiHoanThanh = async (req, res) => {
+  const { bai_thi_id, lop_hoc_id } = req.query;
+  const { _id: sinh_vien_id } = req.user;
+
+  try {
+    const baiThi = await BaiThi.find({ _id: bai_thi_id, lop_hoc_id })
+      .where("ds_sinh_vien_da_thi")
+      .in(sinh_vien_id)
+      .populate({ path: "nguoi_tao_id", select: "ho ten " })
+      .populate({ path: "lop_hoc_id", select: "tieu_de" })
+      .populate({
+        path: "ds_cau_hoi.cau_hoi_id",
+        select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
+      });
+
+    if (baiThi) {
+      console.log('baiThi', baiThi);
+    }
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
+module.exports = { loadBaiThi, nopBaiThi, loadBaiThiHoanThanh };

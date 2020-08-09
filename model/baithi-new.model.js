@@ -14,11 +14,16 @@ const baiThi1Schema = new Schema(
     lop_hoc_id: { type: Schema.Types.ObjectId, ref: 'LopHoc' },
     //ngay_thi: Date,
     ngay_thi: Date,
-    thoi_gian_thi: { type: Number, required: true },
-    trang_thai: { type: Boolean, default: true },
-    ds_sinh_vien: [{ type: Schema.Types.ObjectId, ref: 'SinhVien' }],
-    ds_sinh_vien_da_thi: [{ type: Schema.Types.ObjectId, ref: "SinhVien" }],
-    ds_cau_hoi: [cauHoi]
+
+    thoi_gian_thi: {type: Number, required: true},
+    trang_thai: {type: Boolean, default: true},
+    ds_sinh_vien: [{type: Schema.Types.ObjectId, ref: 'SinhVien'}],
+    ds_sinh_vien_da_thi: [{type: Schema.Types.ObjectId, ref: "SinhVien"}],
+    ds_cau_hoi: [cauHoi],
+    thoi_gian_tre: {
+      type: Date,
+      default: moment(this.ngay_thi).add("15", "minute")
+    }
   },
   {
     timestamps: true,
@@ -29,6 +34,7 @@ const baiThi1Schema = new Schema(
 
 baiThi1Schema.virtual("duoc_phep_thi").get(function () {
   const ngay_thi = moment(this.ngay_thi)
+
   const thoi_gian_tre = moment(ngay_thi).add("15", "minute");
   const thoi_gian_hien_tai = moment(new Date());
   const duoc_phep_thi = thoi_gian_tre > thoi_gian_hien_tai;
@@ -38,5 +44,6 @@ baiThi1Schema.virtual("duoc_phep_thi").get(function () {
 baiThi1Schema.virtual("ngay_thi_format").get(function () {
   return moment(this.ngay_thi).format("DD/MM HH:mm") + "";
 });
+
 
 module.exports = mongoose.model("BaiThi", baiThi1Schema, "bai_thi");
