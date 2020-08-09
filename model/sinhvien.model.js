@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment");
 
 const Schema = mongoose.Schema;
 
@@ -28,8 +29,8 @@ const sinhVienSchema = new Schema({
   },
   email: String,
   ngay_sinh: Date,
-  sdt: Number,
-  gioi_tinh: String,
+  sdt: String,
+  gioi_tinh: Boolean,
   mat_khau: String,
   nguoi_tao_id: { type: Schema.Types.ObjectId, ref: "NguoiDung" },
   ds_lop_hoc: [{ type: Schema.Types.ObjectId, ref: "LopHoc", default: [] }],
@@ -47,5 +48,11 @@ const sinhVienSchema = new Schema({
   });
 sinhVienSchema.virtual("hoten").get(function () {
   return this.ho + " " + this.ten;
+});
+sinhVienSchema.virtual("ngay_sinh_format").get(function() {
+  return moment(this.ngay_sinh).format("DD/MM/yyyy") + "";
+});
+sinhVienSchema.virtual("gioi_tinh_format").get(function() {
+  return this.gioi_tinh ? "Nam" : "Nữ"
 });
 module.exports = mongoose.model("SinhVien", sinhVienSchema, "sinh_vien");
