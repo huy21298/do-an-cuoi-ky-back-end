@@ -18,7 +18,11 @@ const baiThi1Schema = new Schema(
     trang_thai: {type: Boolean, default: true},
     ds_sinh_vien: [{type: Schema.Types.ObjectId, ref: 'SinhVien'}],
     ds_sinh_vien_da_thi: [{type: Schema.Types.ObjectId, ref: "SinhVien"}],
-    ds_cau_hoi: [cauHoi]
+    ds_cau_hoi: [cauHoi],
+    thoi_gian_tre: {
+      type: Date,
+      default: moment(this.ngay_thi).add("15", "minute")
+    }
   },
   {
     timestamps: true,

@@ -72,8 +72,6 @@ const nopBaiThi = async (req, res) => {
   const { bai_thi } = req.body;
   const { _id } = req.user;
   const data = JSON.parse(bai_thi);
-  // console.log('req.body', req.body);
-  console.log("data", data);
   try {
     const ketQua = await BaiThiSinhVien.create(data);
     if (!ketQua) {
