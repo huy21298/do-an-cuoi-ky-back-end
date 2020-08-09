@@ -11,7 +11,9 @@ const {
     hanLamBai,
     layThongTinLopHoc,
     loadBaiThiDaHoanThanh,
-    loadBaiThiKhongHoanThanh
+    loadBaiThiKhongHoanThanh,
+    loadBaiTapDaNop,
+    loadBaiTapQuaHan
 } = require("../../controllers/lophoc.controller");
 
 router.get("/", loadLopHocThamGia); //id sinh vien
@@ -24,4 +26,6 @@ router.post("/tham-gia",validate.validateLopHoc(),thamGiaLopHoc)
 router.get("/:id/han-nop",hanLamBai)
 router.get("/:lop_hoc_id/bai-thi-hoan-thanh",loadBaiThiDaHoanThanh)
 router.get("/:lop_hoc_id/bai-thi-khong-hoan-thanh", loadBaiThiKhongHoanThanh);
+router.get("/:lop_hoc_id/bai-tap-da-nop", loadBaiTapDaNop);
+router.get("/:lop_hoc_id/bai-tap-qua-han", loadBaiTapQuaHan);
 module.exports = router;

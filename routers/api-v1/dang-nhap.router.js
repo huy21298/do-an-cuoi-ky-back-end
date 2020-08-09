@@ -6,11 +6,12 @@ var bcrypt = require("bcrypt");
 const { validationResult } = require("express-validator");
 const validate = require("../../validator/sinhvien.validator");
 const SinhVien = require("../../model/sinhvien.model");
+const status = require("../../constant/status.constant");
 
 router.post("/", validate.validateLogin(), (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(403).json({ success: false, errors: errors.array() });
+    return res.status(INVALID_FIELD).json({ success: false, errors: errors.array() });
   }
   const { mat_khau } = req.body;
   SinhVien.findOne({ email: req.body.email }).then((sinhVien) => {
@@ -21,7 +22,7 @@ router.post("/", validate.validateLogin(), (req, res) => {
           param: "email",
         },
       ];
-      return res.status(402).json({
+      return res.status(status.INVALID_FIELD).json({
         success: false,
         errors,
       });
@@ -34,7 +35,7 @@ router.post("/", validate.validateLogin(), (req, res) => {
             param: "mat_khau",
           },
         ];
-        return res.status(402).json({
+        return res.status(status.INVALID_FIELD).json({
           success: false,
           errors,
         });
@@ -53,7 +54,7 @@ router.post("/", validate.validateLogin(), (req, res) => {
             console.log(err);
           } else {
             res
-              .status(201)
+              .status(status.SUCCESS)
               .json({
                 token: token,
                 expires: 3600 * 24 * 7,

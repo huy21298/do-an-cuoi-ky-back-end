@@ -8,6 +8,7 @@ const BaiTap = require("../model/baitap.model");
 const BaiThi = require("../model/baithi-new.model");
 const Invite = require("../model/invite.model");
 const BaiThiSinhVien = require("../model/baithisinhvien.model");
+const NopBaiTap = require("../model/nopbaitap.model");
 /** Import message notice function*/
 const { noticeCrash } = require("./notice-messages");
 const { validationResult } = require("express-validator");
@@ -52,7 +53,7 @@ const loadBaiThiTrongMotLop = async (req, res) => {
       .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
-      .sort({ngay_thi: 1})
+      .sort({ ngay_thi: 1 })
       .populate({ path: "nguoi_tao_id", select: "ho ten" });
     const baiThiData = baiThi.filter((item) => item.duoc_phep_thi === true);
     // const baiThiData = baiThi.filter(item => item.duoc_phep_thi === false);
@@ -70,13 +71,13 @@ const loadBaiThiTrongMotLop = async (req, res) => {
 const loadBaiTapTrongMotLop = (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
   BaiTap.find({ lop_hoc_id })
-    .select("tieu_de han_nop_bai nguoi_tao_id noi_dung createdAt trang_thai")
+    .select("tieu_de han_nop_bai han_nop_bai_format nguoi_tao_id noi_dung createdAt trang_thai")
     .where("han_nop_bai")
     .gte(new Date())
     .where("trang_thai", true)
     .where("ds_sinh_vien_da_lam")
     .nin(req.user._id)
-    .sort({han_nop_bai: 1})
+    .sort({ han_nop_bai: 1 })
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .then((baiTap) => {
       const data = {
@@ -173,9 +174,9 @@ const hanLamBai = async (req, res) => {
       .where("han_nop_bai")
       .gte(new Date())
       .where("trang_thai", true)
-      .sort({han_nop_bai: 1})
+      .sort({ han_nop_bai: 1 });
 
-      console.log('baiTap', baiTap)
+    console.log("baiTap", baiTap);
 
     const baiThiFilter = baiThi.filter((item) => item.duoc_phep_thi === true);
 
@@ -183,16 +184,9 @@ const hanLamBai = async (req, res) => {
       data.push(baiThiFilter[0]);
     }
 
-    if (baiTap.length >0) {
+    if (baiTap.length > 0) {
       data.push(baiTap[0]);
     }
-    // if (countBaiTap > 0) {
-    //   const baiTap = await BaiTap.findOne({ lop_hoc_id: id })
-    //     .select("tieu_de han_nop_bai")
-    //     .sort({ han_nop_bai: -1 })
-    //     .limit(1);
-    //   data.push(baiTap);
-    // }
     if (data.length > 0) {
       return res
         .status(status.SUCCESS)
@@ -220,7 +214,7 @@ const layThongTinLopHoc = async (req, res) => {
 };
 
 const loadBaiThiDaHoanThanh = async (req, res) => {
-  const { lop_hoc_id } = req.params;
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
   const { _id: sinh_vien_id } = req.user;
 
   try {
@@ -249,28 +243,79 @@ const loadBaiThiDaHoanThanh = async (req, res) => {
       errors: [{ param: "bai_thi_id", msg: "Không tồn tại bài thi" }],
     });
   } catch (e) {
-    console.log("e", e);
     noticeCrash(res);
   }
 };
 
-loadBaiThiKhongHoanThanh = async (req, res) => {
-  const { lop_hoc_id } = req.params;
+const loadBaiThiKhongHoanThanh = async (req, res) => {
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
+  const { _id: sinh_vien_id } = req.user;
+  try {
+    const baiThi = await BaiThi.find({ lop_hoc_id  });
+
+    console.log('baiThi', baiThi);
+  } catch (e) {
+    console.log('e', e);
+  }
+  // try {
+  //   const baiThi = await BaiThi.find({ lop_hoc_id })
+  //     .where("ds_sinh_vien_da_thi")
+  //     .nin(sinh_vien_id);
+  //   console.log("baiThi", baiThi);
+  //   res.json({ data: { baiThi, baiThiSV } });
+  // } catch (e) {
+  //   console.log("e", e);
+  //   noticeCrash(res);
+  // }
+};
+
+const loadBaiTapDaNop = async (req, res) => {
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
   const { _id: sinh_vien_id } = req.user;
 
-  try {
-    console.log("lop_hoc_id", lop_hoc_id);
-    console.log("sinh_vien_id", sinh_vien_id);
-    const baiThiSV = await BaiThiSinhVien.find({ lop_hoc_id, sinh_vien_id });
-    const baiThi = await BaiThi.find({ lop_hoc_id })
-      .where("ds_sinh_vien_da_thi")
-      .nin(sinh_vien_id);
-    console.log("baiThiSV", baiThiSV);
-    console.log("baiThi", baiThi);
-    res.json({ data: { baiThi, baiThiSV } });
-  } catch (e) {
-    console.log("e", e);
+  const dsBaiTapDaNop = await NopBaiTap.find({ lop_hoc_id, sinh_vien_id })
+    .select("da_cham_diem")
+    .populate({
+      path: "bai_tap_id",
+      ref: "bai_tap",
+      select: "_id han_nop_bai_format noi_dung tieu_de",
+    });
+
+  if (!dsBaiTapDaNop) {
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      errros: [{ param: "lop_hoc_id", msg: "Bài thi không tồn tại" }],
+    });
   }
+  return res.status(status.SUCCESS).json({
+    success: true,
+    msg: "Load bài tập thành công",
+    bai_tap: dsBaiTapDaNop,
+  });
+};
+
+const loadBaiTapQuaHan = async (req, res) => {
+  const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
+  const { _id: sinh_vien_id } = req.user;
+
+  const baiTap = await BaiTap.find({ lop_hoc_id })
+    .where("ds_sinh_vien_da_lam")
+    .nin(sinh_vien_id)
+    .where("han_nop_bai")
+    .lt(new Date())
+    .select("_id han_nop_bai_format noi_dung tieu_de");
+
+  if (!baiTap) {
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      errros: [{ param: "lop_hoc_id", msg: "Bài thi không tồn tại" }],
+    });
+  }
+  return res.status(status.SUCCESS).json({
+    success: true,
+    msg: "Load bài tập thành công",
+    bai_tap: baiTap,
+  });
 };
 
 module.exports = {
@@ -283,4 +328,6 @@ module.exports = {
   layThongTinLopHoc,
   loadBaiThiDaHoanThanh,
   loadBaiThiKhongHoanThanh,
+  loadBaiTapDaNop,
+  loadBaiTapQuaHan,
 };

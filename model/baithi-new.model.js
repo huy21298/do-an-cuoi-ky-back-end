@@ -22,7 +22,9 @@ const baiThi1Schema = new Schema(
     ds_cau_hoi: [cauHoi],
     thoi_gian_tre: {
       type: Date,
-      default: moment(this.ngay_thi).add("15", "minute")
+      default: function() {
+        return moment(this.ngay_thi).add("15", "minute").toDate()
+      }
     }
   },
   {

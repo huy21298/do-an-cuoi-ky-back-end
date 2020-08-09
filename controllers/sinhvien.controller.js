@@ -225,24 +225,29 @@ const updateMatKhau = (req, res) => {
     }
     const { _id } = req.user;
     //console.log(_id);
-    const { mat_khau1, mat_khau2 } = req.body;
+    const { mat_khau_cu, mat_khau_moi } = req.body;
     SinhVien.findOne({ _id })
         .then(sv => {
             //console.log(sv)
             if (sv == null) {
-                return res.status(401).json({
+                return res.status(status.INVALID_FIELD).json({
                     'success': false,
                     'msg': "Sai id người dùng",
                 });
             }
-            else bcrypt.compare(mat_khau1, sv.mat_khau).then(ketQua => { // so sánh pass
+            else bcrypt.compare(mat_khau_cu, sv.mat_khau).then(ketQua => { // so sánh pass
                 if (!ketQua) {
-                    return res.status(401).json({
+                    return res.status(status.INVALID_FIELD).json({
                         success: false,
-                        msg: "Mật khẩu cũ không đúng",
+                        errors: [
+                            {
+                                param: "mat_khau_cu",
+                                msg: 'Mật khẩu cũ không đúng'
+                            }
+                        ],
                     });
                 }
-                hashPassWord(req.body.mat_khau2) // mã hóa pass
+                hashPassWord(mat_khau_moi) // mã hóa pass
                     .then(kq => {
                         if (kq) {
                             SinhVien.updateOne({ _id }, { $set: { mat_khau: kq } })

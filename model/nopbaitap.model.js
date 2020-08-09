@@ -7,6 +7,10 @@ const nopBaiTapSchema = new Schema({
   bai_tap_id: { type: Schema.Types.ObjectId, ref: "BaiTap" },
   sinh_vien_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
   lop_hoc_id: { type: Schema.Types.ObjectId, ref: "LopHoc" },
+  da_cham_diem: {
+    type: Boolean,
+    default: false
+  },
   bai_nop : String
 },
 {
