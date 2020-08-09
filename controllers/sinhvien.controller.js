@@ -41,7 +41,7 @@ const suaThongTin = async (req, res) => {
   const nguoi_dung_id = req.user._id;
   const thong_tin = JSON.parse(req.body.thong_tin);
 
-  const isExist = await SuaThongTin.exists({ nguoi_dung_id });
+  const isExist = await SuaThongTin.exists({ nguoi_dung_id, trang_thai: false });
 
   if (isExist) {
     return res
