@@ -158,6 +158,7 @@ const xemBaiTapHoanThanh = async (req, res) => {
       path: "lop_hoc_id",
       select: "tieu_de"
     });
+    console.log('diemBaiTap', diemBaiTap);
     if (diemBaiTap) {
       return res
         .status(status.SUCCESS)
