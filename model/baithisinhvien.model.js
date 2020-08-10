@@ -11,6 +11,7 @@ const baiThiCuaSinhVienchema = new Schema({
 
     sinh_vien_id: { type: Schema.Types.ObjectId, ref: "SinhVien" },
     bai_thi_id: { type: Schema.Types.ObjectId, ref: "BaiThi" },
+    lop_hoc_id: { type: Schema.Types.ObjectId, ref: "LopHoc" },
     bai_thi_sinh_vien: [cauHoi]
 
 },

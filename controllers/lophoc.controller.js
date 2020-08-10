@@ -216,7 +216,7 @@ const layThongTinLopHoc = async (req, res) => {
 const loadBaiThiDaHoanThanh = async (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
   const { _id: sinh_vien_id } = req.user;
-
+  console.log('sinh_vien_id', sinh_vien_id)
   try {
     const baiThiHoanThanh = await BaiThiSinhVien.find({
       lop_hoc_id,

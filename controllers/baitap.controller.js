@@ -75,6 +75,8 @@ const nopBaiTap = async (req, res) => {
       .where("ds_sinh_vien_da_lam")
       .nin(sinh_vien_id);
 
+    console.log("baiTap", baiTap);
+
     if (!baiTap) {
       return res.status(status.INVALID_FIELD).json({
         success: false,
@@ -119,21 +121,21 @@ const huyBaiTap = (req, res) => {
 
   NopBaiTap.findOneAndDelete({ bai_tap_id })
     .then((huyBaiTap) => {
-        console.log('huyBaiTap', huyBaiTap)
+      console.log("huyBaiTap", huyBaiTap);
       if (huyBaiTap) {
         res
           .status(status.SUCCESS)
           .json({ success: true, msg: "Hủy bài tập thành công" });
       } else {
-          res.status(status.INVALID_FIELD).json({
-              success: false,
-              errors: [
-                  {
-                      msg: "Hủy bài tập thất bại",
-                      param: "bai_tap_id"
-                  }
-              ]
-          })
+        res.status(status.INVALID_FIELD).json({
+          success: false,
+          errors: [
+            {
+              msg: "Hủy bài tập thất bại",
+              param: "bai_tap_id",
+            },
+          ],
+        });
       }
     })
     .catch((e) => noticeCrash(res));
@@ -141,13 +143,40 @@ const huyBaiTap = (req, res) => {
 
 const xemBaiTapHoanThanh = async (req, res) => {
   const bai_tap_id = mongoose.Types.ObjectId(req.params.bai_tap_id);
-
+  const sinh_vien_id = mongoose.Types.ObjectId(req.user._id);
   try {
-    const diemBaiTap = await Diem.find({ ex_id: bai_tap_id }).populate({ path: "ex_id"});
-    console.log('diemBaiTap', diemBaiTap)
+    const diemBaiTap = await Diem.findOne({ ex_id: bai_tap_id })
+    .populate({
+      path: "ex_id",
+      match: {
+        ds_sinh_vien_da_lam: { $in: sinh_vien_id },
+      },
+      populate: { path: "nguoi_tao_id", select: "ho ten hoten" },
+      select: "tieu_de han_nop_bai han_nop_bai_format noi_dung tep_tin",
+    })
+    .populate({
+      path: "lop_hoc_id",
+      select: "tieu_de"
+    });
+    if (diemBaiTap) {
+      return res
+        .status(status.SUCCESS)
+        .json({
+          msg: "Load bài tập thành công",
+          success: true,
+          bai_tap: diemBaiTap,
+        });
+    }
+    return res
+      .status(status.INVALID_FIELD)
+      .json({
+        success: false,
+        msg: "Load bài tập thất bại",
+        errros: [{ param: "bai_tap_id", msg: "Bài tập không tồn tại" }],
+      });
   } catch (e) {
-    console.log('e', e);
+    console.log("e", e);
   }
-}
+};
 
 module.exports = { loadbaiTap, nopBaiTap, huyBaiTap, xemBaiTapHoanThanh };
