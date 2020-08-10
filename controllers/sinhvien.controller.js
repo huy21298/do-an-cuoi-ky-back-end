@@ -57,7 +57,7 @@ const suaThongTin = async (req, res) => {
     ...thong_tin,
     nguoi_dung_id: nguoi_dung_id,
     trang_thai: Boolean(false),
-    la_sinhvien: Boolean(true),
+    loai: "SinhVien",
   })
     .then((suaThongTin) => {
       if (suaThongTin) {

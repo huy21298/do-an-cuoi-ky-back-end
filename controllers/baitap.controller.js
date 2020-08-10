@@ -5,6 +5,7 @@ const fs = require("fs");
 const BaiTap = require("../model/baitap.model");
 const SinhVien = require("../model/sinhvien.model");
 const NopBaiTap = require("../model/nopbaitap.model");
+const Diem = require("../model/Diem.model");
 
 const status = require("../constant/status.constant");
 /** Import message notice function*/
@@ -138,4 +139,15 @@ const huyBaiTap = (req, res) => {
     .catch((e) => noticeCrash(res));
 };
 
-module.exports = { loadbaiTap, nopBaiTap, huyBaiTap };
+const xemBaiTapHoanThanh = async (req, res) => {
+  const bai_tap_id = mongoose.Types.ObjectId(req.params.bai_tap_id);
+
+  try {
+    const diemBaiTap = await Diem.find({ ex_id: bai_tap_id }).populate({ path: "ex_id"});
+    console.log('diemBaiTap', diemBaiTap)
+  } catch (e) {
+    console.log('e', e);
+  }
+}
+
+module.exports = { loadbaiTap, nopBaiTap, huyBaiTap, xemBaiTapHoanThanh };
