@@ -5,7 +5,7 @@ const fs = require("fs");
 const BaiTap = require("../model/baitap.model");
 const SinhVien = require("../model/sinhvien.model");
 const NopBaiTap = require("../model/nopbaitap.model");
-const Diem = require("../model/Diem.model");
+const Diem = require("../model/diem.model");
 
 const status = require("../constant/status.constant");
 /** Import message notice function*/
