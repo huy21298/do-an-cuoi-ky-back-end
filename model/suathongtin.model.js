@@ -20,7 +20,7 @@ const suaThongTinSchema = new Schema(
     thong_tin_sua: data,
     loai: {
       type: String,
-      default: ""
+      default: "SinhVien"
     },
     trang_thai: {
       type: Boolean,
