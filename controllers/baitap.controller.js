@@ -145,7 +145,7 @@ const xemBaiTapHoanThanh = async (req, res) => {
   const bai_tap_id = mongoose.Types.ObjectId(req.params.bai_tap_id);
   const sinh_vien_id = mongoose.Types.ObjectId(req.user._id);
   try {
-    const diemBaiTap = await Diem.findOne({ ex_id: bai_tap_id })
+    const diemBaiTap = await Diem.findOne({ ex_id: bai_tap_id, loai: "BaiTap" })
     .populate({
       path: "ex_id",
       match: {

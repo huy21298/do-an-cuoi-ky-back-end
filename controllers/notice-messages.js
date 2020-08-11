@@ -4,7 +4,7 @@ const status = require("../constant/status.constant");
 const noticeCrash = (res) => {
   const data = {
     success: false,
-    message: ERROR_CRASH,
+    msg: ERROR_CRASH,
   };
   res.status(status.SERVER_ERROR).json(data)
 }

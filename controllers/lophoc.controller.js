@@ -69,24 +69,29 @@ const loadBaiThiTrongMotLop = async (req, res) => {
 // };
 
 const loadBaiTapTrongMotLop = (req, res) => {
-  const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
-  BaiTap.find({ lop_hoc_id })
-    .select("tieu_de han_nop_bai han_nop_bai_format nguoi_tao_id noi_dung createdAt trang_thai")
-    .where("han_nop_bai")
-    .gte(new Date())
-    .where("trang_thai", true)
-    .where("ds_sinh_vien_da_lam")
-    .nin(req.user._id)
-    .sort({ han_nop_bai: 1 })
-    .populate({ path: "nguoi_tao_id", select: "ho ten" })
-    .then((baiTap) => {
-      const data = {
-        bai_tap: baiTap,
-      };
+  try {
+    const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
+    BaiTap.find({ lop_hoc_id })
+      .select("tieu_de han_nop_bai han_nop_bai_format nguoi_tao_id noi_dung createdAt trang_thai")
+      .where("han_nop_bai")
+      .gte(new Date())
+      .where("trang_thai", true)
+      .where("ds_sinh_vien_da_lam")
+      .nin(req.user._id)
+      .sort({ han_nop_bai: 1 })
+      .populate({ path: "nguoi_tao_id", select: "ho ten" })
+      .then((baiTap) => {
+        const data = {
+          bai_tap: baiTap,
+        };
+  
+        res.status(200).json({ success: true, data });
+      })
+      .catch((e) => noticeCrash(res));
 
-      res.status(200).json({ success: true, data });
-    })
-    .catch((e) => noticeCrash(res));
+  } catch {
+    noticeCrash(res)
+  }
 };
 
 const thamGiaLopHoc = async (req, res) => {
@@ -216,13 +221,12 @@ const layThongTinLopHoc = async (req, res) => {
 const loadBaiThiDaHoanThanh = async (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
   const { _id: sinh_vien_id } = req.user;
-  console.log('sinh_vien_id', sinh_vien_id)
   try {
     const baiThiHoanThanh = await BaiThiSinhVien.find({
       lop_hoc_id,
       sinh_vien_id,
     })
-      .select("-_id bai_thi_id da_cham")
+      .select("-_id bai_thi_id da_cham_diem")
       .populate({
         path: "bai_thi_id",
         ref: "bai_thi",
