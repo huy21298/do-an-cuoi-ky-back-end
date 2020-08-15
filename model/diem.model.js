@@ -2,12 +2,20 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
+const chiTietBaiLam = new Schema({
+    cau_hoi_id: {type: Schema.Types.ObjectId, refPath: 'chi_tiet_bai_lam.loai'},
+    cau_tra_loi: String,
+    dung_sai: Boolean,
+    loai: {type: String, enum:['TuLuan', 'TracNghiem']}
+})
+
 const diemSchema = new Schema({
-    loai: String,
     diem: Number,
-    sinh_vien_id: {ref: "SinhVien", type: Schema.Types.ObjectId},
-    lop_hoc_id: { ref: "LopHoc", type: Schema.Types.ObjectId},
-    ex_id: { ref: "BaiTap", type: Schema.Types.ObjectId}
+    sinh_vien_id: {type: Schema.Types.ObjectId, ref: 'SinhVien'},
+    lop_hoc_id: {type: Schema.Types.ObjectId, ref :'LopHoc'},
+    ex_id: {type: Schema.Types.ObjectId, refPath:'loai'},
+    chi_tiet_bai_lam: [chiTietBaiLam],
+    loai: {type: String, enum:['BaiTap', 'BaiThi'], default: 'BaiTap'},
 },
     {
         timestamps: true,

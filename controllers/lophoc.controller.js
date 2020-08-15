@@ -237,6 +237,7 @@ const loadBaiThiDaHoanThanh = async (req, res) => {
           select: "ho ten hoten",
         },
       });
+      console.log('baiThiHoanThanh', baiThiHoanThanh)
     if (baiThiHoanThanh) {
       return res
         .status(status.SUCCESS)

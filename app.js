@@ -16,7 +16,6 @@ const lopHocRoute = require("./routers/api-v1/lophoc.router");
 const sinhVienRoute = require("./routers/api-v1/sinhvien.router");
 const dangNhapRoute = require("./routers/api-v1/dang-nhap.router");
 const passwordRoute= require("./routers/api-v1/password");
-const { nextTick } = require('process');
 /** Define middleware */
 app.use(bodyParser.urlencoded({ extended: true })); // => khai báo để sử dụng req.body (lấy ra những biến POST)
 app.use(bodyParser.json());

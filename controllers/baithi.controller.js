@@ -5,6 +5,7 @@ const BaiThi = require("../model/baithi-new.model");
 const TracNghiem = require("../model/cauhoitracnghiem.model");
 const TuLuan = require("../model/cauhoituluan.model");
 const BaiThiSinhVien = require("../model/baithisinhvien.model");
+const Diem = require("../model/diem.model");
 const moment = require("moment");
 /** Import message notice function*/
 const status = require("../constant/status.constant");
@@ -92,6 +93,11 @@ const nopBaiThi = async (req, res) => {
         msg: "Nộp bài thành công, nhấn xác nhận để quay về trang lớp học",
       });
     }
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      msg: "Nộp bài thi thất bại",
+      errors: [{param: "bai_thi_id", msg: "Bài thi không tồn tại hoặc đã xảy ra lỗi trong quá trình nộp"}]
+    });
   } catch (e) {
     console.log("e", e);
     noticeCrash(res);
@@ -112,7 +118,7 @@ const loadBaiThiHoanThanh = async (req, res) => {
         path: "ds_cau_hoi.cau_hoi_id",
         select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
       });
-
+      console.log('baiThi', baiThi)
     if (baiThi) {
       console.log('baiThi', baiThi);
     }
@@ -121,4 +127,33 @@ const loadBaiThiHoanThanh = async (req, res) => {
     noticeCrash(res);
   }
 };
-module.exports = { loadBaiThi, nopBaiThi, loadBaiThiHoanThanh };
+
+const xemDiemBaiThi = async (req, res) => {
+
+  const { bai_thi_id, lop_hoc_id } = req.query;
+  const { _id: sinh_vien_id } = req.user;
+
+  const diemBaiThi = await Diem.findOne({ sinh_vien_id, lop_hoc_id, ex_id: bai_thi_id, loai: "BaiThi"})
+                                .populate({ path: "chi_tiet_bai_lam.cau_hoi_id"})
+                                .populate({ path: "sinh_vien_id", select: "ho ten hoten ma_sv"})
+  const baiThi = await BaiThi.findById(bai_thi_id).select("tieu_de thoi_gian_thi");
+
+  if (diemBaiThi) {
+    return res.status(status.SUCCESS).json({
+      success: true,
+      msg: "Tải bài thi thành công",
+      data: {
+        bai_thi: diemBaiThi,
+        ct_bai_thi: baiThi
+      }
+    });
+  }
+
+  return res.status(status.INVALID_FIELD).json({
+    success: true,
+    msg: "Tải bài thi thất bại",
+    errors: [{param: "bai_thi_id", msg: "Bài thi không tồn tại"}]
+  });
+
+}
+module.exports = { loadBaiThi, nopBaiThi, loadBaiThiHoanThanh, xemDiemBaiThi };
