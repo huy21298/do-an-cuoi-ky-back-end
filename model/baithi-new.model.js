@@ -47,5 +47,14 @@ baiThi1Schema.virtual("ngay_thi_format").get(function () {
   return moment(this.ngay_thi).format("DD/MM HH:mm") + "";
 });
 
+baiThi1Schema.virtual("tieu_de_format").get(function() {
+  if (this.tieu_de) {
+      if (this.tieu_de.length <= 12) {
+          return this.tieu_de;
+      }
+      return this.tieu_de.slice(0, 12) + "...";
+  }
+})
+
 
 module.exports = mongoose.model("BaiThi", baiThi1Schema, "bai_thi");

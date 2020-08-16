@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 /** Import third library  */
 const express = require("express");
 const path = require("path");
@@ -8,6 +7,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const passport = require("passport");
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 /** Import custom module */
 require("./model/connectDB")();
 const baiThiRoute = require("./routers/api-v1/baithi.router");
@@ -23,13 +23,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
-
-
 app.use(cors({
   origin: process.env.URL_FRONT_END
 }))
 app.use(passport.initialize()); 
-
 
 require('./authenticate/passport')(passport);
 // app.use(passport.session());

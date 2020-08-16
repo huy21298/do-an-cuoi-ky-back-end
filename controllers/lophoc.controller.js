@@ -72,7 +72,9 @@ const loadBaiTapTrongMotLop = (req, res) => {
   try {
     const lop_hoc_id = mongoose.Types.ObjectId(req.params.id);
     BaiTap.find({ lop_hoc_id })
-      .select("tieu_de han_nop_bai han_nop_bai_format nguoi_tao_id noi_dung createdAt trang_thai")
+      .select(
+        "tieu_de han_nop_bai han_nop_bai_format nguoi_tao_id noi_dung createdAt trang_thai"
+      )
       .where("han_nop_bai")
       .gte(new Date())
       .where("trang_thai", true)
@@ -84,13 +86,12 @@ const loadBaiTapTrongMotLop = (req, res) => {
         const data = {
           bai_tap: baiTap,
         };
-  
+
         res.status(200).json({ success: true, data });
       })
       .catch((e) => noticeCrash(res));
-
   } catch {
-    noticeCrash(res)
+    noticeCrash(res);
   }
 };
 
@@ -237,7 +238,7 @@ const loadBaiThiDaHoanThanh = async (req, res) => {
           select: "ho ten hoten",
         },
       });
-      console.log('baiThiHoanThanh', baiThiHoanThanh)
+    console.log("baiThiHoanThanh", baiThiHoanThanh);
     if (baiThiHoanThanh) {
       return res
         .status(status.SUCCESS)
@@ -256,11 +257,24 @@ const loadBaiThiKhongHoanThanh = async (req, res) => {
   const lop_hoc_id = mongoose.Types.ObjectId(req.params.lop_hoc_id);
   const { _id: sinh_vien_id } = req.user;
   try {
-    const baiThi = await BaiThi.find({ lop_hoc_id  });
+    const baiThi = await BaiThi.find({ lop_hoc_id })
+      .where("ds_sinh_vien_da_thi")
+      .nin(sinh_vien_id)
+      .where("thoi_gian_tre")
+      .lt(new Date())
+      .select("tieu_de ngay_thi");
 
-    console.log('baiThi', baiThi);
+      if (baiThi) {
+        return res.status(status.SUCCESS).json({
+          success: true,
+          msg: "Tải bài thi thành công",
+          bai_thi: baiThi
+        })
+      }
+
+    console.log("baiThi", baiThi);
   } catch (e) {
-    console.log('e', e);
+    console.log("e", e);
   }
   // try {
   //   const baiThi = await BaiThi.find({ lop_hoc_id })

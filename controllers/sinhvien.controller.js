@@ -5,6 +5,8 @@ const nodemailer = require("nodemailer");
 var uuid = require("uuid");
 const moment = require("moment");
 const bcrypt = require("bcrypt");
+const path = require("path");
+
 /** Import model */
 const SuaThongTin = require("../model/suathongtin.model");
 const SinhVien = require("../model/sinhvien.model");
@@ -41,16 +43,17 @@ const suaThongTin = async (req, res) => {
   const nguoi_dung_id = req.user._id;
   const thong_tin = JSON.parse(req.body.thong_tin);
 
-  const isExist = await SuaThongTin.exists({ nguoi_dung_id, trang_thai: false });
+  const isExist = await SuaThongTin.exists({
+    nguoi_dung_id,
+    trang_thai: false,
+  });
 
   if (isExist) {
-    return res
-      .status(status.SUCCESS)
-      .json({
-        success: false,
-        msg:
-          "Bạn đã thay đổi thông tin trước đó nhưng chưa được quản trị viên kiểm duyệt. Vui lòng quay lại sau",
-      });
+    return res.status(status.SUCCESS).json({
+      success: false,
+      msg:
+        "Bạn đã thay đổi thông tin trước đó nhưng chưa được quản trị viên kiểm duyệt. Vui lòng quay lại sau",
+    });
   }
 
   SuaThongTin.create({
@@ -70,37 +73,49 @@ const suaThongTin = async (req, res) => {
 };
 const CapNhatAvatar = (req, res) => {
   const _id = req.user._id;
-  //console.log(req.user._id)
-  SinhVien.findById({ _id })
-    .then((user) => {
-      if (user) {
-        //console.log(user)
-        const processedFile = req.file || {}; // MULTER xử lý và gắn đối tượng FILE vào req
-        let orgName = processedFile.originalname || ""; // Tên gốc trong máy tính của người upload
-        orgName = orgName.trim().replace(/ /g, "-");
-        const fullPathInServ = processedFile.path; // Đường dẫn đầy đủ của file vừa đc upload lên server
-        // Đổi tên của file vừa upload lên, vì multer đang đặt default ko có đuôi file
-        const newFullPath = `${fullPathInServ}-${orgName}`;
-        fs.renameSync(fullPathInServ, newFullPath);
-        req.body.anh_dai_dien = orgName;
-        const _id = req.params.id;
-        SinhVien.updateOne(
-          { _id },
-          { $set: { anh_dai_dien: req.body.anh_dai_dien } }
-        )
-          .then((aVaTar) => {
-            if (aVaTar) {
-              res.status(status.SUCCESS).json({
-                success: true,
-                msg: "Cập nhật avatar thàng công",
-                fileNameInServer: orgName,
-              });
-            }
-          })
-          .catch((e) => noticeCrash(res));
+  const { avatar } = req.files;
+  const typeFile = avatar.mimetype.split("/")
+  const isValidType = typeFile.includes("png") || typeFile.includes("jpeg") || typeFile.includes("jpg");
+  const isMaxSize = Math.floor(avatar.size / 1048576) <= 2;
+  if (isValidType && isMaxSize) {
+    const anh_dai_dien = `${_id}.${typeFile[1]}`;
+    avatar.mv(path.join(`public/avatar/${anh_dai_dien}`), async (err) => {
+
+      if (err) {
+        return res.status(status.INVALID_FIELD).json({
+          success: false,
+          msg: "Định dạng hoặc kích thước file không được cho phép",
+          errors: [{
+            params: "avatar",
+            msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
+          }]
+        })
+      }
+
+      const sinhVien = await SinhVien.findOneAndUpdate({_id}, {anh_dai_dien});
+
+      if (sinhVien) {
+        return res.status(status.SUCCESS).json({
+          success: true,
+          msg: 'Cập nhật hình đại diện thành công',
+          anh_dai_dien
+        })
       }
     })
-    .catch((e) => console.log(e));
+  } else {
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      msg: "Định dạng hoặc kích thước file không được cho phép",
+      errors: [{
+        params: "avatar",
+        msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
+      }]
+    })
+  }
+  // console.log('req.files', req.files);
+  // avatar.mv(path.join("public/avatar/test.jpg"), function (err) {
+  //   console.log("err", err);
+  // });
 };
 
 const sendMail = (user, link) => {
