@@ -105,79 +105,39 @@ const nopBaiTap = async (req, res) => {
     console.log("e", e);
     noticeCrash(res);
   }
-
-  // try {
-  //   const baiTap = await BaiTap.findOne({ _id: bai_tap_id, lop_hoc_id })
-  //     .where("han_nop_bai")
-  //     .gte(new Date())
-  //     .where("trang_thai", 1)
-  //     .where("ds_sinh_vien_da_lam")
-  //     .nin(sinh_vien_id);
-
-  //   console.log("baiTap", baiTap);
-
-  //   if (!baiTap) {
-  //     return res.status(status.INVALID_FIELD).json({
-  //       success: false,
-  //       errors: [
-  //         {
-  //           param: "id",
-  //           msg: "Bài tập không tồn tại hoặc đã hết hạn",
-  //         },
-  //       ],
-  //     });
-  //   }
-
-  //   const nopBaiTap = await NopBaiTap.create({
-  //     bai_tap_id,
-  //     lop_hoc_id,
-  //     sinh_vien_id,
-  //     bai_nop: "",
-  //   });
-
-  //   if (nopBaiTap) {
-  //     const baiTap = await BaiTap.findByIdAndUpdate(
-  //       { _id: bai_tap_id },
-  //       { $push: { ds_sinh_vien_da_lam: sinh_vien_id } }
-  //     );
-  //     if (baiTap) {
-  //       return res.status(status.SUCCESS).json({
-  //         success: true,
-  //         msg: "Nộp bài tập thành công",
-  //       });
-  //     }
-  //     return noticeCrash(res);
-  //   }
-
-  //   noticeCrash(res);
-  // } catch {
-  //   noticeCrash(res);
-  // }
 };
 
-const huyBaiTap = (req, res) => {
-  const { bai_tap_id } = req.body;
-
-  NopBaiTap.findOneAndDelete({ bai_tap_id })
-    .then((huyBaiTap) => {
-      console.log("huyBaiTap", huyBaiTap);
-      if (huyBaiTap) {
-        res
-          .status(status.SUCCESS)
-          .json({ success: true, msg: "Hủy bài tập thành công" });
-      } else {
-        res.status(status.INVALID_FIELD).json({
-          success: false,
-          errors: [
-            {
-              msg: "Hủy bài tập thất bại",
-              param: "bai_tap_id",
-            },
-          ],
-        });
-      }
-    })
-    .catch((e) => noticeCrash(res));
+const huyBaiTap = async (req, res) => {
+  const { bai_tap_id, lop_hoc_id } = req.body;
+  const { _id: sinh_vien_id } = req.user;
+  try {
+    const huyBaiTap = await NopBaiTap.findOneAndDelete({
+      bai_tap_id,
+      lop_hoc_id,
+      sinh_vien_id,
+    }).where("da_cham_diem", false);
+    const baiThiSinhVien = await BaiTap.findOneAndUpdate(
+      { _id: bai_tap_id },
+      { $pull: { ds_sinh_vien_da_lam: sinh_vien_id } }
+    );
+    if (huyBaiTap && baiThiSinhVien) {
+      return res
+        .status(status.SUCCESS)
+        .json({ success: true, msg: "Hủy nộp bài thành công" });
+    }
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      errors: [
+        {
+          msg: "Hủy bài tập thất bại",
+          param: "bai_tap_id",
+        },
+      ],
+    });
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
 };
 
 const xemBaiTapHoanThanh = async (req, res) => {
@@ -195,6 +155,8 @@ const xemBaiTapHoanThanh = async (req, res) => {
         select: "tieu_de han_nop_bai han_nop_bai_format noi_dung tep_tin",
       });
 
+    console.log("diemBaiTap", diemBaiTap);
+
     if (diemBaiTap) {
       return res.status(status.SUCCESS).json({
         msg: "Load bài tập thành công",
@@ -208,8 +170,51 @@ const xemBaiTapHoanThanh = async (req, res) => {
       errors: [{ param: "bai_tap_id", msg: "Bài tập không tồn tại" }],
     });
   } catch (e) {
+    noticeCrash(res);
     console.log("e", e);
   }
 };
 
-module.exports = { loadbaiTap, nopBaiTap, huyBaiTap, xemBaiTapHoanThanh };
+const xemChiTietBaiTapHoanThanh = async (req, res) => {
+  try {
+    const { lop_hoc_id, bai_tap_id } = req.body;
+    const { _id: sinh_vien_id } = req.user;
+    const baiTap = await BaiTap.findById(bai_tap_id)
+      .where("lop_hoc_id", lop_hoc_id)
+      .where("ds_sinh_vien_da_lam")
+      .in(sinh_vien_id)
+      .populate({ path: "lop_hoc_id", select: "tieu_de" })
+      .populate({ path: "nguoi_tao_id", select: "ho ten" });
+    const baiNop = await NopBaiTap.findOne({
+      bai_tap_id,
+      lop_hoc_id,
+      sinh_vien_id,
+    }).select("da_cham_diem bai_nop");
+    if (baiTap && baiNop) {
+      return res.status(status.SUCCESS).json({
+        msg: "Load bài tập thành công",
+        success: true,
+        data: {
+          baiTap: baiTap,
+          baiNop: baiNop,
+        },
+      });
+    }
+    return res.status(status.INVALID_FIELD).json({
+      success: false,
+      msg: "Load bài tập thất bại",
+      errors: [{ param: "bai_tap_id", msg: "Bài tập không tồn tại" }],
+    });
+  } catch (e) {
+    console.log("e", e);
+    noticeCrash(res);
+  }
+};
+
+module.exports = {
+  loadbaiTap,
+  nopBaiTap,
+  huyBaiTap,
+  xemBaiTapHoanThanh,
+  xemChiTietBaiTapHoanThanh,
+};

@@ -276,16 +276,6 @@ const loadBaiThiKhongHoanThanh = async (req, res) => {
   } catch (e) {
     console.log("e", e);
   }
-  // try {
-  //   const baiThi = await BaiThi.find({ lop_hoc_id })
-  //     .where("ds_sinh_vien_da_thi")
-  //     .nin(sinh_vien_id);
-  //   console.log("baiThi", baiThi);
-  //   res.json({ data: { baiThi, baiThiSV } });
-  // } catch (e) {
-  //   console.log("e", e);
-  //   noticeCrash(res);
-  // }
 };
 
 const loadBaiTapDaNop = async (req, res) => {
@@ -293,13 +283,13 @@ const loadBaiTapDaNop = async (req, res) => {
   const { _id: sinh_vien_id } = req.user;
 
   const dsBaiTapDaNop = await NopBaiTap.find({ lop_hoc_id, sinh_vien_id })
-    .select("da_cham_diem")
+    .select("da_cham_diem bai_nop")
     .populate({
       path: "bai_tap_id",
       ref: "bai_tap",
       select: "_id han_nop_bai_format noi_dung tieu_de",
     });
-
+    console.log('dsBaiTapDaNop', dsBaiTapDaNop);
   if (!dsBaiTapDaNop) {
     return res.status(status.INVALID_FIELD).json({
       success: false,
