@@ -38,13 +38,19 @@ const loadBaiThi = async (req, res) => {
 
     const ngayHienTai = moment(new Date());
     const ngayThi = moment(baiThi.ngay_thi);
+
+    const ngay = ngayThi.date() < 10 ? "0" + ngayThi.date() : ngayThi.date() + "";
+    const thang = ngayThi.month() + 1 < 10 ? "0" + (ngayThi.month() + 1) + "" : (ngayThi.month() + 1) + "";
+    const gio = ngayThi.hour() < 10 ? "0" + ngayThi.hour() : ngayThi.hour() + "";
+    const phut = ngayThi.minute() < 10 ? "0" + ngayThi.minute() : ngayThi.minute() + "";
+
     if (ngayHienTai < ngayThi) {
       const thoiGianConLai = ngayThi - ngayHienTai;
-      console.log("thoiGianConLai", thoiGianConLai);
       return res.status(status.SUCCESS).json({
         success: false,
         msg: "Chưa tới thời gian thi",
         thoi_gian_con_lai: thoiGianConLai,
+        ngay_thi: { ngay, thang, gio, phut },
         code: "SOON",
       });
     }

@@ -1,6 +1,6 @@
 /** Import third library */
 const mongoose = require("mongoose");
-const fs = require("fs");
+const path = require("path");
 /** Import model */
 const BaiTap = require("../model/baitap.model");
 const SinhVien = require("../model/sinhvien.model");
@@ -23,55 +23,136 @@ const loadbaiTap = (req, res) => {
 };
 
 const nopBaiTap = async (req, res) => {
-  const { lop_hoc_id, bai_tap_id } = req.body;
-  const { _id: sinh_vien_id } = req.user;
   try {
-    const baiTap = await BaiTap.findOne({ _id: bai_tap_id, lop_hoc_id })
-      .where("han_nop_bai")
-      .gte(new Date())
-      .where("trang_thai", 1)
+    const { bai_tap: fileNop } = req.files;
+    const { lop_hoc_id, bai_tap_id } = req.body;
+    const { _id: sinh_vien_id } = req.user;
+
+    const baiTap = await BaiTap.findById(bai_tap_id)
+      .where("lop_hoc_id", lop_hoc_id)
       .where("ds_sinh_vien_da_lam")
       .nin(sinh_vien_id);
-
-    console.log("baiTap", baiTap);
 
     if (!baiTap) {
       return res.status(status.INVALID_FIELD).json({
         success: false,
         errors: [
           {
-            param: "id",
-            msg: "Bài thi không tồn tại hoặc đã hết hạn",
+            msg: "Bài tập không tồn tại hoặc đã được nộp",
+            param: "bai_tap_id",
+          },
+        ],
+      });
+    }
+    const isMaxSize = Math.floor(fileNop.size / 1048576) <= 10;
+    if (!isMaxSize) {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        msg: "Kích thước file không được cho phép",
+        errors: [
+          {
+            params: "bai_tap_id",
+            msg: "Chỉ cho phép loại tệp kích thước không vượt quá 10MB",
           },
         ],
       });
     }
 
-    const nopBaiTap = await NopBaiTap.create({
-      bai_tap_id,
-      lop_hoc_id,
-      sinh_vien_id,
-      bai_nop: "",
-    });
+    fileNop.mv(path.join(`public/bai-tap/${fileNop.name}`), async (err) => {
+      if (err) {
+        console.log("err", err);
+        return res.status(status.INVALID_FIELD).json({
+          success: false,
+          msg: "Nộp bài tập thất bại, vui lòng thử lại sau",
+          errors: [
+            {
+              params: "bai_tap_id",
+              msg: "Nộp bài tập thất bại, vui lòng thử lại sau",
+            },
+          ],
+        });
+      }
 
-    if (nopBaiTap) {
-      const baiTap = await BaiTap.findByIdAndUpdate(
+      const themSVBaiTap = await BaiTap.findByIdAndUpdate(
         { _id: bai_tap_id },
         { $push: { ds_sinh_vien_da_lam: sinh_vien_id } }
       );
-      if (baiTap) {
+      const nopBaiTap = await NopBaiTap.create({
+        bai_tap_id,
+        lop_hoc_id,
+        sinh_vien_id,
+        bai_nop: fileNop.name,
+      });
+
+      if (themSVBaiTap && nopBaiTap) {
         return res.status(status.SUCCESS).json({
           success: true,
-          msg: "Nộp bài thi thành công",
+          msg: "Nộp bài tập thành công",
         });
       }
-      return noticeCrash(res);
-    }
-
-    noticeCrash(res);
-  } catch {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        msg: "Nộp bài tập thất bại, vui lòng thử lại sau",
+        errors: [
+          {
+            params: "bai_tap_id",
+            msg: "Nộp bài tập thất bại, vui lòng thử lại sau",
+          },
+        ],
+      });
+    });
+  } catch (e) {
+    console.log("e", e);
     noticeCrash(res);
   }
+
+  // try {
+  //   const baiTap = await BaiTap.findOne({ _id: bai_tap_id, lop_hoc_id })
+  //     .where("han_nop_bai")
+  //     .gte(new Date())
+  //     .where("trang_thai", 1)
+  //     .where("ds_sinh_vien_da_lam")
+  //     .nin(sinh_vien_id);
+
+  //   console.log("baiTap", baiTap);
+
+  //   if (!baiTap) {
+  //     return res.status(status.INVALID_FIELD).json({
+  //       success: false,
+  //       errors: [
+  //         {
+  //           param: "id",
+  //           msg: "Bài tập không tồn tại hoặc đã hết hạn",
+  //         },
+  //       ],
+  //     });
+  //   }
+
+  //   const nopBaiTap = await NopBaiTap.create({
+  //     bai_tap_id,
+  //     lop_hoc_id,
+  //     sinh_vien_id,
+  //     bai_nop: "",
+  //   });
+
+  //   if (nopBaiTap) {
+  //     const baiTap = await BaiTap.findByIdAndUpdate(
+  //       { _id: bai_tap_id },
+  //       { $push: { ds_sinh_vien_da_lam: sinh_vien_id } }
+  //     );
+  //     if (baiTap) {
+  //       return res.status(status.SUCCESS).json({
+  //         success: true,
+  //         msg: "Nộp bài tập thành công",
+  //       });
+  //     }
+  //     return noticeCrash(res);
+  //   }
+
+  //   noticeCrash(res);
+  // } catch {
+  //   noticeCrash(res);
+  // }
 };
 
 const huyBaiTap = (req, res) => {

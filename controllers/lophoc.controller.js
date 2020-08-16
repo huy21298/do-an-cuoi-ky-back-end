@@ -22,7 +22,7 @@ const loadLopHocThamGia = (req, res) => {
     .populate({
       path: "ds_lop_hoc",
       select: "tieu_de nguoi_tao_id",
-      populate: { path: "nguoi_tao_id", select: "ho ten hoten" },
+      populate: { path: "nguoi_tao_id", select: "ho ten hoten anh_dai_dien" },
     })
     .populate({ path: "ds_cau_hoi.cau_hoi_id" })
     .then((lopHoc) => {

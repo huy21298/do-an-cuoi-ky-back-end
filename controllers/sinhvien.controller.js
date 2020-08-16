@@ -72,46 +72,52 @@ const suaThongTin = async (req, res) => {
     .catch((e) => noticeCrash(res));
 };
 const CapNhatAvatar = (req, res) => {
-  const _id = req.user._id;
-  const { avatar } = req.files;
-  const typeFile = avatar.mimetype.split("/")
-  const isValidType = typeFile.includes("png") || typeFile.includes("jpeg") || typeFile.includes("jpg");
-  const isMaxSize = Math.floor(avatar.size / 1048576) <= 2;
-  if (isValidType && isMaxSize) {
-    const anh_dai_dien = `${_id}.${typeFile[1]}`;
-    avatar.mv(path.join(`public/avatar/${anh_dai_dien}`), async (err) => {
-
-      if (err) {
-        return res.status(status.INVALID_FIELD).json({
-          success: false,
-          msg: "Định dạng hoặc kích thước file không được cho phép",
-          errors: [{
-            params: "avatar",
-            msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
-          }]
-        })
-      }
-
-      const sinhVien = await SinhVien.findOneAndUpdate({_id}, {anh_dai_dien});
-
-      if (sinhVien) {
-        return res.status(status.SUCCESS).json({
-          success: true,
-          msg: 'Cập nhật hình đại diện thành công',
-          anh_dai_dien
-        })
-      }
-    })
-  } else {
-    return res.status(status.INVALID_FIELD).json({
-      success: false,
-      msg: "Định dạng hoặc kích thước file không được cho phép",
-      errors: [{
-        params: "avatar",
-        msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
-      }]
-    })
+  try {
+    const _id = req.user._id;
+    const { avatar } = req.files;
+    const typeFile = avatar.mimetype.split("/")
+    const isValidType = typeFile.includes("png") || typeFile.includes("jpeg") || typeFile.includes("jpg");
+    const isMaxSize = Math.floor(avatar.size / 1048576) <= 2;
+    if (isValidType && isMaxSize) {
+      const anh_dai_dien = `${_id}.${typeFile[1]}`;
+      avatar.mv(path.join(`public/avatar/${anh_dai_dien}`), async (err) => {
+  
+        if (err) {
+          return res.status(status.INVALID_FIELD).json({
+            success: false,
+            msg: "Định dạng hoặc kích thước file không được cho phép",
+            errors: [{
+              params: "avatar",
+              msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
+            }]
+          })
+        }
+  
+        const sinhVien = await SinhVien.findOneAndUpdate({_id}, {anh_dai_dien});
+  
+        if (sinhVien) {
+          return res.status(status.SUCCESS).json({
+            success: true,
+            msg: 'Cập nhật hình đại diện thành công',
+            anh_dai_dien
+          })
+        }
+      })
+    } else {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        msg: "Định dạng hoặc kích thước file không được cho phép",
+        errors: [{
+          params: "avatar",
+          msg: "Chỉ cho phép loại tệp là jpg, jpge, png và kích thước không vượt quá 2MB"
+        }]
+      })
+    }
+  } catch (e) {
+    console.log('e', e);
+    noticeCrash(res)
   }
+  
   // console.log('req.files', req.files);
   // avatar.mv(path.join("public/avatar/test.jpg"), function (err) {
   //   console.log("err", err);

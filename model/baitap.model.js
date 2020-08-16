@@ -28,7 +28,7 @@ const baiTapSchema = new Schema({
 });
 
 baiTapSchema.virtual("han_nop_bai_format").get(function() {
-  return moment(this.han_nop_bai).format("DD/MM HH:mm") + ""
+  return moment(this.han_nop_bai).lang("vi").format("lll") + ""
 });
 
 baiTapSchema.virtual("trang_thai_format").get(function() {
