@@ -53,6 +53,7 @@ const loadBaiThiTrongMotLop = async (req, res) => {
       .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
+      .where("trang_thai", true)
       .sort({ ngay_thi: 1 })
       .populate({ path: "nguoi_tao_id", select: "ho ten" });
     const baiThiData = baiThi.filter((item) => item.duoc_phep_thi === true);
@@ -172,6 +173,7 @@ const hanLamBai = async (req, res) => {
       .select("tieu_de ngay_thi ngay_thi_format nguoi_tao_id duoc_phep_thi")
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
+      .where("trang_thai", true)
       .sort({ ngay_thi: 1 });
 
     const baiTap = await BaiTap.find({ lop_hoc_id: id })
@@ -262,6 +264,7 @@ const loadBaiThiKhongHoanThanh = async (req, res) => {
       .nin(sinh_vien_id)
       .where("thoi_gian_tre")
       .lt(new Date())
+      .where("trang_thai", true)
       .select("tieu_de ngay_thi");
 
       if (baiThi) {
@@ -312,8 +315,8 @@ const loadBaiTapQuaHan = async (req, res) => {
     .nin(sinh_vien_id)
     .where("han_nop_bai")
     .lt(new Date())
-    .select("_id han_nop_bai_format noi_dung tieu_de");
-
+    .where("trang_thai", true)
+    .select("_id han_nop_bai_format noi_dung tieu_de")
   if (!baiTap) {
     return res.status(status.INVALID_FIELD).json({
       success: false,

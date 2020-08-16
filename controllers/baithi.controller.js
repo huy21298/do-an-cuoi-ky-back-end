@@ -17,6 +17,7 @@ const loadBaiThi = async (req, res) => {
     const baiThi = await BaiThi.findById(id)
       .where("ds_sinh_vien_da_thi")
       .nin(req.user._id)
+      .where("trang_thai", true)
       .populate({ path: "nguoi_tao_id", select: "ho ten " })
       .populate({ path: "lop_hoc_id", select: "tieu_de" })
       .populate({
@@ -39,10 +40,16 @@ const loadBaiThi = async (req, res) => {
     const ngayHienTai = moment(new Date());
     const ngayThi = moment(baiThi.ngay_thi);
 
-    const ngay = ngayThi.date() < 10 ? "0" + ngayThi.date() : ngayThi.date() + "";
-    const thang = ngayThi.month() + 1 < 10 ? "0" + (ngayThi.month() + 1) + "" : (ngayThi.month() + 1) + "";
-    const gio = ngayThi.hour() < 10 ? "0" + ngayThi.hour() : ngayThi.hour() + "";
-    const phut = ngayThi.minute() < 10 ? "0" + ngayThi.minute() : ngayThi.minute() + "";
+    const ngay =
+      ngayThi.date() < 10 ? "0" + ngayThi.date() : ngayThi.date() + "";
+    const thang =
+      ngayThi.month() + 1 < 10
+        ? "0" + (ngayThi.month() + 1) + ""
+        : ngayThi.month() + 1 + "";
+    const gio =
+      ngayThi.hour() < 10 ? "0" + ngayThi.hour() : ngayThi.hour() + "";
+    const phut =
+      ngayThi.minute() < 10 ? "0" + ngayThi.minute() : ngayThi.minute() + "";
 
     if (ngayHienTai < ngayThi) {
       const thoiGianConLai = ngayThi - ngayHienTai;
@@ -102,7 +109,12 @@ const nopBaiThi = async (req, res) => {
     return res.status(status.INVALID_FIELD).json({
       success: false,
       msg: "Nộp bài thi thất bại",
-      errors: [{param: "bai_thi_id", msg: "Bài thi không tồn tại hoặc đã xảy ra lỗi trong quá trình nộp"}]
+      errors: [
+        {
+          param: "bai_thi_id",
+          msg: "Bài thi không tồn tại hoặc đã xảy ra lỗi trong quá trình nộp",
+        },
+      ],
     });
   } catch (e) {
     console.log("e", e);
@@ -118,15 +130,15 @@ const loadBaiThiHoanThanh = async (req, res) => {
     const baiThi = await BaiThi.find({ _id: bai_thi_id, lop_hoc_id })
       .where("ds_sinh_vien_da_thi")
       .in(sinh_vien_id)
+      .where("trang_thai", true)
       .populate({ path: "nguoi_tao_id", select: "ho ten " })
       .populate({ path: "lop_hoc_id", select: "tieu_de" })
       .populate({
         path: "ds_cau_hoi.cau_hoi_id",
         select: "lua_chon.label lua_chon.id lua_chon.value diem noi_dung",
       });
-      console.log('baiThi', baiThi)
     if (baiThi) {
-      console.log('baiThi', baiThi);
+      console.log("baiThi", baiThi);
     }
   } catch (e) {
     console.log("e", e);
@@ -135,14 +147,20 @@ const loadBaiThiHoanThanh = async (req, res) => {
 };
 
 const xemDiemBaiThi = async (req, res) => {
-
   const { bai_thi_id, lop_hoc_id } = req.query;
   const { _id: sinh_vien_id } = req.user;
 
-  const diemBaiThi = await Diem.findOne({ sinh_vien_id, lop_hoc_id, ex_id: bai_thi_id, loai: "BaiThi"})
-                                .populate({ path: "chi_tiet_bai_lam.cau_hoi_id"})
-                                .populate({ path: "sinh_vien_id", select: "ho ten hoten ma_sv"})
-  const baiThi = await BaiThi.findById(bai_thi_id).select("tieu_de thoi_gian_thi");
+  const diemBaiThi = await Diem.findOne({
+    sinh_vien_id,
+    lop_hoc_id,
+    ex_id: bai_thi_id,
+    loai: "BaiThi",
+  })
+    .populate({ path: "chi_tiet_bai_lam.cau_hoi_id" })
+    .populate({ path: "sinh_vien_id", select: "ho ten hoten ma_sv" });
+  const baiThi = await BaiThi.findById(bai_thi_id)
+    .where("trang_thai", true)
+    .select("tieu_de thoi_gian_thi");
 
   if (diemBaiThi) {
     return res.status(status.SUCCESS).json({
@@ -150,16 +168,15 @@ const xemDiemBaiThi = async (req, res) => {
       msg: "Tải bài thi thành công",
       data: {
         bai_thi: diemBaiThi,
-        ct_bai_thi: baiThi
-      }
+        ct_bai_thi: baiThi,
+      },
     });
   }
 
   return res.status(status.INVALID_FIELD).json({
     success: true,
     msg: "Tải bài thi thất bại",
-    errors: [{param: "bai_thi_id", msg: "Bài thi không tồn tại"}]
+    errors: [{ param: "bai_thi_id", msg: "Bài thi không tồn tại" }],
   });
-
-}
+};
 module.exports = { loadBaiThi, nopBaiThi, loadBaiThiHoanThanh, xemDiemBaiThi };

@@ -13,6 +13,7 @@ const { noticeCrash } = require("./notice-messages");
 const loadbaiTap = (req, res) => {
   const _id = req.params.id;
   BaiTap.findById({ _id })
+    .where("trang_thai", true)
     .select("tieu_de noi_dung ngay_het_han nguoi_tao_id lop_hoc_id han_nop_bai")
     .populate({ path: "nguoi_tao_id", select: "ho ten" })
     .populate({ path: "lop_hoc_id", select: "tieu_de" })
@@ -31,7 +32,8 @@ const nopBaiTap = async (req, res) => {
     const baiTap = await BaiTap.findById(bai_tap_id)
       .where("lop_hoc_id", lop_hoc_id)
       .where("ds_sinh_vien_da_lam")
-      .nin(sinh_vien_id);
+      .nin(sinh_vien_id)
+      .where("trang_thai", true);
 
     if (!baiTap) {
       return res.status(status.INVALID_FIELD).json({
@@ -183,6 +185,7 @@ const xemChiTietBaiTapHoanThanh = async (req, res) => {
       .where("lop_hoc_id", lop_hoc_id)
       .where("ds_sinh_vien_da_lam")
       .in(sinh_vien_id)
+      .where("trang_thai", true)
       .populate({ path: "lop_hoc_id", select: "tieu_de" })
       .populate({ path: "nguoi_tao_id", select: "ho ten" });
     const baiNop = await NopBaiTap.findOne({
