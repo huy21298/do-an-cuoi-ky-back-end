@@ -335,7 +335,6 @@ const updateMatKhau = (req, res) => {
 
 const loadAvatar = async (req, res) => {
   const _id = mongoose.Types.ObjectId(req.params.id);
-  const filename = req.params.name;
   const sinhVien = await SinhVien.findOne({ _id })
   //console.log(sinhVien)
   try {
@@ -344,25 +343,13 @@ const loadAvatar = async (req, res) => {
         success: false,
         errors: [
           {
-            msg: "id không tồn tại",
+            msg: "Sinh viên không tồn tại",
             param: "id",
           },
         ],
       });
     }
-    if (sinhVien) {
-      if (sinhVien.anh_dai_dien === filename) {
-        res.sendFile(path.resolve(`./public/avatar/${filename}`))
-      } else return res.status(status.INVALID_FIELD).json({
-        success: false,
-        errors: [
-          {
-            msg: "Đường dẫn hình bị sai",
-            param: "name",
-          },
-        ],
-      });
-    }
+    return res.sendFile(path.resolve(`./public/avatar/${sinhVien.anh_dai_dien}`))
   } catch (e) {
     noticeCrash(res);
   }

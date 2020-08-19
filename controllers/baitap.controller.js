@@ -215,37 +215,24 @@ const xemChiTietBaiTapHoanThanh = async (req, res) => {
   }
 };
 const loadbaitapdanop = async (req,res)=> {
-  const sinh_vien_id = mongoose.Types.ObjectId(req.params.id);
-  const bai_tap_id = mongoose.Types.ObjectId(req.params.idbaitap);
-  const filename = req.params.name;
-  const sinhVien = await NopBaiTap.findOne({ sinh_vien_id,bai_tap_id })
-  //console.log(sinhVien)
+  const sinh_vien_id = mongoose.Types.ObjectId(req.params.sinh_vien_id);
+  const bai_tap_id = mongoose.Types.ObjectId(req.params.bai_tap_id);
+  const baiTap = await NopBaiTap.findOne({ sinh_vien_id, bai_tap_id })
   try {
-    if (!sinhVien) {
+    if (!baiTap) {
       return res.status(status.INVALID_FIELD).json({
         success: false,
         errors: [
           {
-            msg: "id không tồn tại",
-            param: "id",
+            msg: "Bài tập không tồn tại",
+            param: "bai_tap_id",
           },
         ],
       });
     }
-    if (sinhVien) {
-      if (sinhVien.bai_nop === filename) {
-        res.download(path.resolve(`./public/bai-tap/${filename}`))
-      } else return res.status(status.INVALID_FIELD).json({
-        success: false,
-        errors: [
-          {
-            msg: "Đường dẫn hình bị sai",
-            param: "name",
-          },
-        ],
-      });
-    }
+    return res.download(path.resolve(`./public/bai-tap/${baiTap.bai_nop}`))
   } catch (e) {
+    console.log('e', e)
     noticeCrash(res);
   }
 

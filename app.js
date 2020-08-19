@@ -35,8 +35,8 @@ require('./authenticate/passport')(passport);
 
 /** Define route */
 app.use("/api/v1/password",passwordRoute);
-app.use("/api/v1/baitap", fileuploadBaiTapRoute);
-app.use("/api/v1/avatar", fileUploadRoute);
+app.use("/api/v1/lay-bai-tap", fileuploadBaiTapRoute);
+app.use("/api/v1/lay-anh-dai-dien", fileUploadRoute);
 app.use("/api/v1/dang-nhap", dangNhapRoute);
 app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
