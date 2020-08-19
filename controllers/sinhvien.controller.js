@@ -350,7 +350,7 @@ const loadAvatar = async (req, res) => {
         ],
       });
     }
-    if (SinhVien) {
+    if (sinhVien) {
       if (sinhVien.anh_dai_dien === filename) {
         res.sendFile(path.resolve(`./public/avatar/${filename}`))
       } else return res.status(status.INVALID_FIELD).json({

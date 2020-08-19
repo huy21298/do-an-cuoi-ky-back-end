@@ -6,6 +6,7 @@ const BaiTap = require("../model/baitap.model");
 const SinhVien = require("../model/sinhvien.model");
 const NopBaiTap = require("../model/nopbaitap.model");
 const Diem = require("../model/diem.model");
+var fs = require('fs')
 
 const status = require("../constant/status.constant");
 /** Import message notice function*/
@@ -213,6 +214,42 @@ const xemChiTietBaiTapHoanThanh = async (req, res) => {
     noticeCrash(res);
   }
 };
+const loadbaitapdanop = async (req,res)=> {
+  const sinh_vien_id = mongoose.Types.ObjectId(req.params.id);
+  const bai_tap_id = mongoose.Types.ObjectId(req.params.idbaitap);
+  const filename = req.params.name;
+  const sinhVien = await NopBaiTap.findOne({ sinh_vien_id,bai_tap_id })
+  //console.log(sinhVien)
+  try {
+    if (!sinhVien) {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        errors: [
+          {
+            msg: "id không tồn tại",
+            param: "id",
+          },
+        ],
+      });
+    }
+    if (sinhVien) {
+      if (sinhVien.bai_nop === filename) {
+        res.download(path.resolve(`./public/bai-tap/${filename}`))
+      } else return res.status(status.INVALID_FIELD).json({
+        success: false,
+        errors: [
+          {
+            msg: "Đường dẫn hình bị sai",
+            param: "name",
+          },
+        ],
+      });
+    }
+  } catch (e) {
+    noticeCrash(res);
+  }
+
+}
 
 module.exports = {
   loadbaiTap,
@@ -220,4 +257,5 @@ module.exports = {
   huyBaiTap,
   xemBaiTapHoanThanh,
   xemChiTietBaiTapHoanThanh,
+  loadbaitapdanop
 };
