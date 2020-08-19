@@ -81,7 +81,7 @@ const CapNhatAvatar = (req, res) => {
     if (isValidType && isMaxSize) {
       const anh_dai_dien = `${_id}.${typeFile[1]}`;
       avatar.mv(path.join(`public/avatar/${anh_dai_dien}`), async (err) => {
-  
+
         if (err) {
           return res.status(status.INVALID_FIELD).json({
             success: false,
@@ -92,9 +92,9 @@ const CapNhatAvatar = (req, res) => {
             }]
           })
         }
-  
-        const sinhVien = await SinhVien.findOneAndUpdate({_id}, {anh_dai_dien});
-  
+
+        const sinhVien = await SinhVien.findOneAndUpdate({ _id }, { anh_dai_dien });
+
         if (sinhVien) {
           return res.status(status.SUCCESS).json({
             success: true,
@@ -117,7 +117,7 @@ const CapNhatAvatar = (req, res) => {
     console.log('e', e);
     noticeCrash(res)
   }
-  
+
   // console.log('req.files', req.files);
   // avatar.mv(path.join("public/avatar/test.jpg"), function (err) {
   //   console.log("err", err);
@@ -332,6 +332,42 @@ const updateMatKhau = (req, res) => {
     })
     .catch((e) => noticeCrash(res));
 };
+
+const loadAvatar = async (req, res) => {
+  const _id = mongoose.Types.ObjectId(req.params.id);
+  const filename = req.params.name;
+  const sinhVien = await SinhVien.findOne({ _id })
+  //console.log(sinhVien)
+  try {
+    if (!sinhVien) {
+      return res.status(status.INVALID_FIELD).json({
+        success: false,
+        errors: [
+          {
+            msg: "id không tồn tại",
+            param: "id",
+          },
+        ],
+      });
+    }
+    if (SinhVien) {
+      if (sinhVien.anh_dai_dien === filename) {
+        res.sendFile(path.resolve(`./public/avatar/${filename}`))
+      } else return res.status(status.INVALID_FIELD).json({
+        success: false,
+        errors: [
+          {
+            msg: "Đường dẫn hình bị sai",
+            param: "name",
+          },
+        ],
+      });
+    }
+  } catch (e) {
+    noticeCrash(res);
+  }
+}
+
 module.exports = {
   suaThongTin,
   CapNhatAvatar,
@@ -340,4 +376,5 @@ module.exports = {
   doiMatKhau,
   lamMoiToken,
   updateMatKhau,
+  loadAvatar
 };

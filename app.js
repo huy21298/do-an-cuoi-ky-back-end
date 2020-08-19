@@ -16,6 +16,7 @@ const lopHocRoute = require("./routers/api-v1/lophoc.router");
 const sinhVienRoute = require("./routers/api-v1/sinhvien.router");
 const dangNhapRoute = require("./routers/api-v1/dang-nhap.router");
 const passwordRoute= require("./routers/api-v1/password");
+const fileUploadRoute= require("./routers/api-v1/fileupload");
 /** Define middleware */
 app.use(bodyParser.urlencoded({ extended: true })); // => khai báo để sử dụng req.body (lấy ra những biến POST)
 app.use(bodyParser.json());
@@ -33,8 +34,8 @@ require('./authenticate/passport')(passport);
 
 /** Define route */
 app.use("/api/v1/password",passwordRoute);
+app.use("/api/v1/avatar", fileUploadRoute);
 app.use("/api/v1/dang-nhap", dangNhapRoute);
-
 app.use(passport.authenticate("jwt", { session: false }));
 app.use("/api/v1/bai-thi", baiThiRoute); // localhost/api/v1/bai-thi
 app.use("/api/v1/bai-tap", baiTapRoute); // localhost/api/v1/bai-thi
