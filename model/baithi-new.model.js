@@ -42,7 +42,7 @@ baiThi1Schema.virtual("duoc_phep_thi").get(function () {
 });
 
 baiThi1Schema.virtual("ngay_thi_format").get(function () {
-  return moment(this.ngay_thi).lang("vi").format("lll") + "";
+  return moment(this.ngay_thi).lang("vi").format("DD/mm HH:MM") + "";
 });
 
 baiThi1Schema.virtual("tieu_de_format").get(function() {
