@@ -35,4 +35,13 @@ baiTapSchema.virtual("trang_thai_format").get(function() {
   return this.trang_thai ? "Phát hành" : "Bản nháp"
 });
 
+baiTapSchema.virtual("tieu_de_format").get(function() {
+  if (this.tieu_de) {
+      if (this.tieu_de.length <= 12) {
+          return this.tieu_de;
+      }
+      return this.tieu_de.slice(0, 12) + "...";
+  }
+})
+
 module.exports = mongoose.model("BaiTap", baiTapSchema, "bai_tap");
