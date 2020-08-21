@@ -61,6 +61,7 @@ const loadBaiThi = async (req, res) => {
         code: "SOON",
       });
     }
+    console.log('{ngay, thang, gio, phut}', {ngay, thang, gio, phut})
 
     if (!baiThi.duoc_phep_thi) {
       return res.status(status.SUCCESS).json({
